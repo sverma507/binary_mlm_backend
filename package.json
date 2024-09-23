@@ -1,0 +1,33 @@
+{
+  "name": "binary_project_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "server": "nodemon server.js",
+    "build": "react-scripts build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cloudinary": "^2.4.0",
+    "coinpayments": "^2.2.0",
+    "cors": "^2.8.5",
+    "cron": "^3.1.7",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-fileupload": "^1.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.2",
+    "node-cron": "^3.0.3",
+    "nodemon": "^3.1.4",
+    "razorpay": "^2.9.4",
+    "react-scripts": "^5.0.1",
+    "redis": "^4.7.0",
+    "twilio": "^5.2.2"
+  }
+}
