@@ -16,6 +16,142 @@ const API_URL = "https://tejafinance.in/api/prod/merchant/pg/payment/initiate";
 const TOKEN_URL = "https://tejafinance.in/api/prod/merchant/getToken";
 const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
 
+
+
+
+
+
+ // Adjust the path to your User model
+
+exports.signupController = async (req, res) => {
+  const { email, phone, password, referredBy, preferredSide } = req.body;
+  console.log("dataa=>>>", req.body);
+
+  try {
+    // 1. Check if this is the first user (no users in the system)
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      // If this is the first user, no need for referredBy or preferredSide
+      const newUser = new User({
+        email,
+        phone,
+        password,
+        referralCode: generateReferralCode(),
+        isActive: true,
+      });
+
+      await newUser.save();
+      return res.status(201).json({ message: 'First user successfully created!', user: newUser });
+    }
+
+    let parentUser;
+
+    // 2. If `referredBy` is provided, find the parent by referral code
+    if (referredBy) {
+      parentUser = await User.findOne({ referralCode: referredBy });
+      if (!parentUser) {
+        return res.status(400).json({ message: 'Invalid referral code.' });
+      }
+    } else {
+      // 3. If no `referredBy` is provided, find the first user (the grand user)
+      parentUser = await User.findOne().sort({ createdAt: 1 }); // Find the first user created
+      if (!parentUser) {
+        return res.status(400).json({ message: 'Unable to find the grand user.' });
+      }
+    }
+
+    // 4. Ensure the preferredSide input is valid
+    if (preferredSide !== 'left' && preferredSide !== 'right') {
+      return res.status(400).json({ message: 'preferredSide must be either "left" or "right".' });
+    }
+
+    // 5. Traverse the binary tree to find an available preferredSide based on the user's choice (left or right)
+    const targetParent = await findAvailablepreferredSide(parentUser, preferredSide);
+
+    // 6. If no preferredSide is available (this case is unlikely but can occur if something goes wrong)
+    if (!targetParent) {
+      return res.status(500).json({ message: 'No available preferredSide found. Please try again.' });
+    }
+
+    // 7. Create the new user
+    const newUser = new User({
+      email,
+      phone,
+      password,
+      referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
+      referredBy: targetParent._id,
+      isActive: true,
+    });
+
+    // 8. Assign the user to the appropriate preferredSide (left or right)
+    if (preferredSide === 'left' && !targetParent.leftChild) {
+      targetParent.leftChild = newUser._id;
+    } else if (preferredSide === 'right' && !targetParent.rightChild) {
+      targetParent.rightChild = newUser._id;
+    }
+
+    // 9. Save both the parent and the new user
+    await newUser.save();
+    await targetParent.save();
+
+    // 10. Respond with success
+    return res.status(201).json({ message: 'User successfully created!', user: newUser });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Recursive function to find an available preferredSide in the binary MLM tree
+const findAvailablepreferredSide = async (user, preferredSide) => {
+  // Check if the desired preferredSide is available
+  if (preferredSide === 'left') {
+    if (!user.leftChild) {
+      return user; // Return the user if the left preferredSide is vacant
+    } else {
+      // Traverse down the left subtree
+      const leftChild = await User.findById(user.leftChild);
+      return await findAvailablepreferredSide(leftChild, 'left'); // Continue recursively
+    }
+  } else if (preferredSide === 'right') {
+    if (!user.rightChild) {
+      return user; // Return the user if the right preferredSide is vacant
+    } else {
+      // Traverse down the right subtree
+      const rightChild = await User.findById(user.rightChild);
+      return await findAvailablepreferredSide(rightChild, 'right'); // Continue recursively
+    }
+  }
+};
+
+// Helper function to generate a unique referral code
+const generateReferralCode = () => {
+  // Implement a code to generate a unique referral code (e.g., random alphanumeric string)
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Calculate Daily Referral Profits
 exports.calculateDailyReferralProfits = async (userId) => {
   try {
