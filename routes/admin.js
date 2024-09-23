@@ -39,7 +39,7 @@ const router = express.Router();
 
 router.post("/login", Adminlogin);
 router.post("/register", AdminRegister);
-router.get("/all-users", adminProtect, getAllUsers);
+router.get("/all-users", getAllUsers);
 router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);

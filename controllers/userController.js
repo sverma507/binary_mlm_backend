@@ -21,13 +21,31 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
 
 
 
+
+
+
+
+
+
  // Adjust the path to your User model
 
-exports.signupController = async (req, res) => {
+ exports.signupController = async (req, res) => {
   const { email, phone, password, referredBy, preferredSide } = req.body;
   console.log("dataa=>>>", req.body);
 
   try {
+    // Check if the email already exists in the database
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: 'Email already exists.' });
+    }
+
+    // Check if the phone number already exists in the database
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: 'Phone number already exists.' });
+    }
+
     // 1. Check if this is the first user (no users in the system)
     const userCount = await User.countDocuments();
     if (userCount === 0) {
@@ -52,12 +70,6 @@ exports.signupController = async (req, res) => {
       if (!parentUser) {
         return res.status(400).json({ message: 'Invalid referral code.' });
       }
-    } else {
-      // 3. If no `referredBy` is provided, find the first user (the grand user)
-      parentUser = await User.findOne().sort({ createdAt: 1 }); // Find the first user created
-      if (!parentUser) {
-        return res.status(400).json({ message: 'Unable to find the grand user.' });
-      }
     }
 
     // 4. Ensure the preferredSide input is valid
@@ -79,7 +91,7 @@ exports.signupController = async (req, res) => {
       phone,
       password,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
-      referredBy: targetParent._id,
+      referredBy: targetParent.referralCode,
       isActive: true,
     });
 
@@ -102,6 +114,40 @@ exports.signupController = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+exports.getAllTeamTree = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findById(userId).populate('leftChild rightChild');
+    
+    // Create a recursive function to build the tree structure
+    const buildUserTree = (user) => {
+      if (!user) return null;
+      
+      const leftChild = user.leftChild ? buildUserTree(user.leftChild) : null;
+      const rightChild = user.rightChild ? buildUserTree(user.rightChild) : null;
+      
+      const tree = {
+        name: user.email, // You can change this to any user field like name
+        children: []
+      };
+      
+      if (leftChild) tree.children.push(leftChild);
+      if (rightChild) tree.children.push(rightChild);
+
+      return tree;
+    };
+
+    const treeData = buildUserTree(user);
+    
+    res.json(treeData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching user tree.' });
+  }
+}
+
 
 // Recursive function to find an available preferredSide in the binary MLM tree
 const findAvailablepreferredSide = async (user, preferredSide) => {
@@ -127,8 +173,8 @@ const findAvailablepreferredSide = async (user, preferredSide) => {
 
 // Helper function to generate a unique referral code
 const generateReferralCode = () => {
-  // Implement a code to generate a unique referral code (e.g., random alphanumeric string)
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  const randomNumber = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit number
+  return `UTI${randomNumber}`;
 };
 
 

@@ -27,6 +27,7 @@ const {
   getActivationList,
   getAllSelfBonusList,
   updateDailySalaryForAllActiveUsers,
+  getAllTeamTree,
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -43,6 +44,7 @@ router.get("/user-activity", protect, getUserActivity);
 router.get("/all-transactions/:id", protect, getAllTransactions);
 router.get("/withdraw-transactions/:id", protect, getWithdrawPaymentRequest);
 router.get("/team-members/:id/:level", protect, myTeamMembers);
+router.get('/:userId/tree',getAllTeamTree)
 
 // Account routes
 router.patch("/update/account-details/:userId", updateAccountDetails);
