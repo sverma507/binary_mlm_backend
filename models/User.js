@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String },
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  wallet: { type: Number, default: 0 },  // Total amount in wallet
+  earningWallet: { type: Number, default: 0 },  // Total amount in wallet
+  rechargeWallet:{ type: Number, default: 0 },
   directIncome: { type: Number, default: 0 },  // Direct bot income
   matchingIncome: { type: Number, default: 0 },  // Matching income
   salaryIncome: { type: Number, default: 0 },  // Salary income

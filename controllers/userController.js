@@ -198,6 +198,87 @@ const generateReferralCode = () => {
 
 
 
+
+// Purchase Bull functionality
+exports.PurchaseBull = async (req, res) => {
+  console.log("Purchase Bull==>",req.params.id);
+  
+  try {
+    // Fetch the user making the purchase
+    const user = await User.findById(req.params.id);
+    const userId = user._id;
+
+    if (!user) {
+      console.log(`User with ID: ${req.params.id} not found`);
+      return res.status(404).json({ message: `User not found` });
+    }
+
+    // Check if the user has enough balance in the recharge wallet
+    const bullPrice = 60; // Bull price is $60
+    if (user.rechargeWallet < bullPrice) {
+      console.log(`Insufficient balance in the recharge wallet for user: ${user.referralCode}`);
+      return res.status(400).json({ message: "Insufficient balance in recharge wallet" });
+    }
+
+    // Deduct $60 from the recharge wallet and activate the user
+    user.rechargeWallet -= bullPrice;
+    user.isActive = true;
+    await user.save();
+
+    console.log(`Bull purchased for user: ${user.referralCode}, $60 deducted from recharge wallet`);
+    let message = `Bull purchased successfully. $60 deducted from recharge wallet.`;
+
+    // Profit distribution logic to uplines (5 levels)
+    let profitDistribution = [
+      { percentage: 10, description: "1st upline" }, // 10% for the first upline
+      { percentage: 5, description: "2nd upline" },  // 5% for the second upline
+      { percentage: 5, description: "3rd upline" },  // 5% for the third upline
+      { percentage: 2.5, description: "4th upline" }, // 2.5% for the fourth upline
+      { percentage: 2.5, description: "5th upline" } // 2.5% for the fifth upline
+    ];
+
+    let currentUser = user;
+    let levelMessages = [];
+
+    for (let level = 0; level < profitDistribution.length; level++) {
+      // Fetch the referring user (upline) based on the referralCode
+      const uplineUser = await User.findOne({ referralCode: currentUser.referredBy });
+
+      if (!uplineUser) {
+        console.log(`No upline user found for referral code: ${currentUser.referredBy}`);
+        levelMessages.push(`No upline found at level ${level + 1}`);
+        break;
+      }
+
+      // Calculate the profit for the upline
+      const profit = (bullPrice * profitDistribution[level].percentage) / 100;
+
+      // Add the profit to the upline's earning wallet
+      uplineUser.earningWallet += profit;
+      await uplineUser.save();
+
+      const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;
+      console.log(uplineMessage);
+      levelMessages.push(uplineMessage);
+
+      // Set the current user to the upline for the next iteration
+      currentUser = uplineUser;
+    }
+
+    // Send response with success message and details of profit distribution
+    res.status(200).json({
+      message: message,
+      profitDistributionDetails: levelMessages
+    });
+
+  } catch (error) {
+    console.error("Error in PurchaseBull function:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 // Calculate Daily Referral Profits
 exports.calculateDailyReferralProfits = async (userId) => {
   try {

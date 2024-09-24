@@ -28,12 +28,28 @@ const {
   getAllSelfBonusList,
   updateDailySalaryForAllActiveUsers,
   getAllTeamTree,
+  PurchaseBull,
 } = require("../controllers/userController");
 const {
   getAllProducts,
   getPoster,
 } = require("../controllers/productController");
 // const { getSalaryDetails } = require("../controllers/salary");
+
+//purchase bull
+router.post("/purchase-bull/:id", protect, PurchaseBull);
+
+
+
+
+
+
+
+
+
+
+
+
 
 // User routes
 router.get("/profile/:id", protect, getUserProfile);

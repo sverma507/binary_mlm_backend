@@ -50,7 +50,7 @@ exports.adminProtect = async (req, res, next) => {
 
 exports.loginMiddleware = (req, res, next) => {
 
-  console.log("login minddle ware===>",req.header)
+  // console.log("login minddle ware===>",req.header)
   const token = req.header('Authorization')?.split(' ')[1]; // Extract token if it's in the format 'Bearer token'
 
   if (!token) {
