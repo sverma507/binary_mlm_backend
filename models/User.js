@@ -18,7 +18,9 @@ const userSchema = new mongoose.Schema({
   tradingIncome: { type: Number, default: 0 },  // Trading profit income
   leadershipIncome: { type: Number, default: 0 },  // Leadership income
   stakingIncome: { type: Number, default: 0 },  // Staking income from coins
+  matchingIncome:{type:Number, default:0},
   rank: { type: String, default: 'None' },  // Rank (Alpha, Beta, etc.)
+  hasReceivedFirstMatchingIncome: { type: Boolean, default: false },  // Status of the user
   isActive: { type: Boolean, default: false },  // Status of the user
   createdAt: { type: Date, default: Date.now }
 });
