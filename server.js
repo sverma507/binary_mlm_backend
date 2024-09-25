@@ -22,10 +22,9 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: 'https://www.utechtrading.com',  // Frontend URL
-  methods: 'GET,POST,PUT,DELETE',  // Allowed methods
-  credentials: true,  // Allow cookies/auth
-  allowedHeaders: 'Content-Type,Authorization'
+  origin: 'https://www.utechtrading.com',
+  methods: 'GET,POST,PUT,DELETE,OPTIONS',
+  credentials: true
 }));
 
 app.use(express.json());
