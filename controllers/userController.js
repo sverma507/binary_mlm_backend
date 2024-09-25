@@ -54,7 +54,7 @@ exports.signupController = async (req, res) => {
 
     let parentUser;
 
-    // 2. If `referredBy` is provided, find the parent by referral code
+    // 2. If referredBy is provided, find the parent by referral code
     if (referredBy) {
       parentUser = await User.findOne({ referralCode: referredBy });
       if (!parentUser) {
@@ -418,7 +418,7 @@ exports.PurchaseBull = async (req, res) => {
 
     if (!user) {
       console.log(`User with ID: ${req.params.id} not found`);
-      return res.status(404).json({ message: `User not found` });
+      return res.status(404).json({ message:` User not found `});
     }
 
     // Check if the user has enough balance in the recharge wallet
@@ -435,6 +435,19 @@ exports.PurchaseBull = async (req, res) => {
     // Deduct $60 from the recharge wallet and activate the user
     user.rechargeWallet -= bullPrice;
     user.isActive = true;
+    // MatchingIncome(userId);
+    const all_users = await User.find()
+    let all_id=[];
+
+    for(let i=0;i<all_users.length;i++){
+      all_id.push(all_users[i]._id)
+    } 
+    console.log("alll_id--->",all_id);
+    
+    for(let i=0;i<all_id.length;i++){
+      await calculateMatchingIncome(all_id[i])
+      console.log("useraaaa===>",all_id[i])
+    }
     // MatchingIncome(userId);
     const all_users = await User.find()
     let all_id=[];
@@ -506,6 +519,9 @@ exports.PurchaseBull = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+
 
 
 
@@ -635,7 +651,7 @@ exports.calculateDailyReferralProfits = async (userId) => {
       `Daily profit of ${dailyProfit} added to referring user: ${referringUser._id}`
     );
     // } else {
-    //   console.log(`Referred user's package price ${referredUserMaxPackage.price} is less than referring user's package price ${referringUserMaxPackage.price}`);
+    //   console.log(Referred user's package price ${referredUserMaxPackage.price} is less than referring user's package price ${referringUserMaxPackage.price});
     // }
   } catch (err) {
     console.error("Error calculating daily referral profits:", err);
