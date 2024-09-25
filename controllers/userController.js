@@ -16,20 +16,9 @@ const API_URL = "https://tejafinance.in/api/prod/merchant/pg/payment/initiate";
 const TOKEN_URL = "https://tejafinance.in/api/prod/merchant/getToken";
 const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
 
+// Adjust the path to your User model
 
-
-
-
-
-
-
-
-
-
-
- // Adjust the path to your User model
-
- exports.signupController = async (req, res) => {
+exports.signupController = async (req, res) => {
   const { email, phone, password, referredBy, preferredSide } = req.body;
   console.log("dataa=>>>", req.body);
 
@@ -37,13 +26,13 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
     // Check if the email already exists in the database
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      return res.status(400).json({ message: 'Email already exists.' });
+      return res.status(400).json({ message: "Email already exists." });
     }
 
     // Check if the phone number already exists in the database
     const existingPhone = await User.findOne({ phone });
     if (existingPhone) {
-      return res.status(400).json({ message: 'Phone number already exists.' });
+      return res.status(400).json({ message: "Phone number already exists." });
     }
 
     // 1. Check if this is the first user (no users in the system)
@@ -59,7 +48,9 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
       });
 
       await newUser.save();
-      return res.status(201).json({ message: 'First user successfully created!', user: newUser });
+      return res
+        .status(201)
+        .json({ message: "First user successfully created!", user: newUser });
     }
 
     let parentUser;
@@ -68,21 +59,30 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
     if (referredBy) {
       parentUser = await User.findOne({ referralCode: referredBy });
       if (!parentUser) {
-        return res.status(400).json({ message: 'Invalid referral code.' });
+        return res.status(400).json({ message: "Invalid referral code." });
       }
     }
 
     // 4. Ensure the preferredSide input is valid
-    if (preferredSide !== 'left' && preferredSide !== 'right') {
-      return res.status(400).json({ message: 'preferredSide must be either "left" or "right".' });
+    if (preferredSide !== "left" && preferredSide !== "right") {
+      return res
+        .status(400)
+        .json({ message: 'preferredSide must be either "left" or "right".' });
     }
 
     // 5. Traverse the binary tree to find an available preferredSide based on the user's choice (left or right)
-    const targetParent = await findAvailablepreferredSide(parentUser, preferredSide);
+    const targetParent = await findAvailablepreferredSide(
+      parentUser,
+      preferredSide
+    );
 
     // 6. If no preferredSide is available (this case is unlikely but can occur if something goes wrong)
     if (!targetParent) {
-      return res.status(500).json({ message: 'No available preferredSide found. Please try again.' });
+      return res
+        .status(500)
+        .json({
+          message: "No available preferredSide found. Please try again.",
+        });
     }
 
     // 7. Create the new user
@@ -96,9 +96,9 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
     });
 
     // 8. Assign the user to the appropriate preferredSide (left or right)
-    if (preferredSide === 'left' && !targetParent.leftChild) {
+    if (preferredSide === "left" && !targetParent.leftChild) {
       targetParent.leftChild = newUser._id;
-    } else if (preferredSide === 'right' && !targetParent.rightChild) {
+    } else if (preferredSide === "right" && !targetParent.rightChild) {
       targetParent.rightChild = newUser._id;
     }
 
@@ -107,32 +107,36 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
     await targetParent.save();
 
     // 10. Respond with success
-    return res.status(201).json({ message: 'User successfully created!', user: newUser });
-
+    return res
+      .status(201)
+      .json({ message: "User successfully created!", user: newUser });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
-
 
 exports.getAllTeamTree = async (req, res) => {
   const userId = req.params.userId;
   try {
-    const user = await User.findById(userId).populate('leftChild rightChild');
-    
+    const user = await User.findById(userId).populate("leftChild rightChild");
+
     // Create a recursive function to build the tree structure
     const buildUserTree = (user) => {
       if (!user) return null;
-      
+
       const leftChild = user.leftChild ? buildUserTree(user.leftChild) : null;
-      const rightChild = user.rightChild ? buildUserTree(user.rightChild) : null;
-      
+      const rightChild = user.rightChild
+        ? buildUserTree(user.rightChild)
+        : null;
+
       const tree = {
         name: user.email, // You can change this to any user field like name
-        children: []
+        children: [],
       };
-      
+
       if (leftChild) tree.children.push(leftChild);
       if (rightChild) tree.children.push(rightChild);
 
@@ -140,33 +144,32 @@ exports.getAllTeamTree = async (req, res) => {
     };
 
     const treeData = buildUserTree(user);
-    
+
     res.json(treeData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error fetching user tree.' });
+    res.status(500).json({ message: "Error fetching user tree." });
   }
-}
-
+};
 
 // Recursive function to find an available preferredSide in the binary MLM tree
 const findAvailablepreferredSide = async (user, preferredSide) => {
   // Check if the desired preferredSide is available
-  if (preferredSide === 'left') {
+  if (preferredSide === "left") {
     if (!user.leftChild) {
       return user; // Return the user if the left preferredSide is vacant
     } else {
       // Traverse down the left subtree
       const leftChild = await User.findById(user.leftChild);
-      return await findAvailablepreferredSide(leftChild, 'left'); // Continue recursively
+      return await findAvailablepreferredSide(leftChild, "left"); // Continue recursively
     }
-  } else if (preferredSide === 'right') {
+  } else if (preferredSide === "right") {
     if (!user.rightChild) {
       return user; // Return the user if the right preferredSide is vacant
     } else {
       // Traverse down the right subtree
       const rightChild = await User.findById(user.rightChild);
-      return await findAvailablepreferredSide(rightChild, 'right'); // Continue recursively
+      return await findAvailablepreferredSide(rightChild, "right"); // Continue recursively
     }
   }
 };
@@ -177,32 +180,10 @@ const generateReferralCode = () => {
   return `UTI${randomNumber}`;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Purchase Bull functionality
 exports.PurchaseBull = async (req, res) => {
-  console.log("Purchase Bull==>",req.params.id);
-  
+  console.log("Purchase Bull==>", req.params.id);
+
   try {
     // Fetch the user making the purchase
     const user = await User.findById(req.params.id);
@@ -216,25 +197,32 @@ exports.PurchaseBull = async (req, res) => {
     // Check if the user has enough balance in the recharge wallet
     const bullPrice = 60; // Bull price is $60
     if (user.rechargeWallet < bullPrice) {
-      console.log(`Insufficient balance in the recharge wallet for user: ${user.referralCode}`);
-      return res.status(400).json({ message: "Insufficient balance in recharge wallet" });
+      console.log(
+        `Insufficient balance in the recharge wallet for user: ${user.referralCode}`
+      );
+      return res
+        .status(400)
+        .json({ message: "Insufficient balance in recharge wallet" });
     }
 
     // Deduct $60 from the recharge wallet and activate the user
     user.rechargeWallet -= bullPrice;
     user.isActive = true;
+    MatchingIncome(userId)
     await user.save();
 
-    console.log(`Bull purchased for user: ${user.referralCode}, $60 deducted from recharge wallet`);
+    console.log(
+      `Bull purchased for user: ${user.referralCode}, $60 deducted from recharge wallet`
+    );
     let message = `Bull purchased successfully. $60 deducted from recharge wallet.`;
 
     // Profit distribution logic to uplines (5 levels)
     let profitDistribution = [
       { percentage: 10, description: "1st upline" }, // 10% for the first upline
-      { percentage: 5, description: "2nd upline" },  // 5% for the second upline
-      { percentage: 5, description: "3rd upline" },  // 5% for the third upline
+      { percentage: 5, description: "2nd upline" }, // 5% for the second upline
+      { percentage: 5, description: "3rd upline" }, // 5% for the third upline
       { percentage: 2.5, description: "4th upline" }, // 2.5% for the fourth upline
-      { percentage: 2.5, description: "5th upline" } // 2.5% for the fifth upline
+      { percentage: 2.5, description: "5th upline" }, // 2.5% for the fifth upline
     ];
 
     let currentUser = user;
@@ -242,10 +230,14 @@ exports.PurchaseBull = async (req, res) => {
 
     for (let level = 0; level < profitDistribution.length; level++) {
       // Fetch the referring user (upline) based on the referralCode
-      const uplineUser = await User.findOne({ referralCode: currentUser.referredBy });
+      const uplineUser = await User.findOne({
+        referralCode: currentUser.referredBy,
+      });
 
       if (!uplineUser) {
-        console.log(`No upline user found for referral code: ${currentUser.referredBy}`);
+        console.log(
+          `No upline user found for referral code: ${currentUser.referredBy}`
+        );
         levelMessages.push(`No upline found at level ${level + 1}`);
         break;
       }
@@ -268,14 +260,115 @@ exports.PurchaseBull = async (req, res) => {
     // Send response with success message and details of profit distribution
     res.status(200).json({
       message: message,
-      profitDistributionDetails: levelMessages
+      profitDistributionDetails: levelMessages,
     });
-
   } catch (error) {
     console.error("Error in PurchaseBull function:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+
+
+
+
+
+
+
+exports.MatchingIncome = async (userId) => {
+  try {
+    // Fetch the user who has just been activated or is being checked for matching income
+    const user = await User.findById(userId);
+
+    if (!user) {
+      console.log(`User with ID: ${req.params.id} not found`);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.isActive) {
+      console.log(`User with ID: ${req.params.id} is not active`);
+      return res.status(400).json({ message: "User is not active" });
+    }
+
+    // Initialize matching income settings
+    const maxMatchingIncome = 300; // Maximum matching income a user can earn
+    const firstMatchingIncome = 5; // Income for first matching (2:1 or 1:2)
+    const secondMatchingIncome = 5; // Income for second matching (1:1)
+
+    // Traverse upwards through the upline structure
+    let currentUser = user;
+
+    while (currentUser.referredBy) {
+      const uplineUser = await User.findOne({ referralCode: currentUser.referredBy });
+
+      if (!uplineUser) {
+        console.log(`No upline found for user with referral code: ${currentUser.referredBy}`);
+        break;
+      }
+
+      if (uplineUser.matchingIncome >= maxMatchingIncome) {
+        console.log(`Upline user with ID: ${uplineUser._id} has reached the maximum matching income limit`);
+      } else {
+        const leftActiveUsers = await countActiveUsers(uplineUser.leftSide);
+        const rightActiveUsers = await countActiveUsers(uplineUser.rightSide);
+
+        // First matching (2:1 or 1:2), can only happen once
+        if (!uplineUser.hasReceivedFirstMatchingIncome) {
+          if ((leftActiveUsers >= 2 && rightActiveUsers >= 1) || (leftActiveUsers >= 1 && rightActiveUsers >= 2)) {
+            uplineUser.earningWallet += firstMatchingIncome;
+            uplineUser.matchingIncome += firstMatchingIncome;
+            uplineUser.hasReceivedFirstMatchingIncome = true; // Mark first matching as completed
+            await uplineUser.save();
+
+            console.log(`Upline user with ID: ${uplineUser._id} earned $${firstMatchingIncome} from 2:1 or 1:2 matching`);
+          }
+        }
+
+        // Second matching (1:1), can happen multiple times
+        if (uplineUser.hasReceivedFirstMatchingIncome) {
+          while (leftActiveUsers > 0 && rightActiveUsers > 0 && uplineUser.matchingIncome < maxMatchingIncome) {
+            uplineUser.earningWallet += secondMatchingIncome;
+            uplineUser.matchingIncome += secondMatchingIncome;
+
+            leftActiveUsers--;
+            rightActiveUsers--;
+
+            console.log(`Upline user with ID: ${uplineUser._id} earned $${secondMatchingIncome} from 1:1 matching`);
+
+            if (uplineUser.matchingIncome >= maxMatchingIncome) {
+              console.log(`Upline user with ID: ${uplineUser._id} has reached the $300 matching income limit`);
+              break;
+            }
+
+            await uplineUser.save();
+          }
+        }
+      }
+
+      // Move up to the next upline
+      currentUser = uplineUser;
+    }
+
+    res.status(200).json({
+      message: `Matching income processed successfully for activated user and their upline.`,
+    });
+
+  } catch (error) {
+    console.error("Error in MatchingIncome function:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Helper function to count active users on a side (left or right)
+async function countActiveUsers(side) {
+  const activeUsers = await User.find({ _id: { $in: side }, isActive: true });
+  return activeUsers.length;
+}
+
+
+
+
 
 
 
@@ -758,21 +851,19 @@ exports.buyPackage = async (req, res) => {
       mobileNumber: user.mobileNumber,
       activateBy: "user",
       package: packageData.name,
-      packagePrice:packageData.price,
+      packagePrice: packageData.price,
       wallet: user.rechargeWallet,
     });
     await activation.save();
-    
+
     console.log(packageData);
 
     await updateUplineBuisness(userId, packageId);
     await checkBusiness();
-    res
-      .status(200)
-      .json({
-        message: "Package purchased successfully",
-        package: packageData,
-      });
+    res.status(200).json({
+      message: "Package purchased successfully",
+      package: packageData,
+    });
   } catch (error) {
     console.log("error=>", error);
     res.status(500).json({ error: error.message });
@@ -791,7 +882,7 @@ const updateUplineBuisness = async (userId, packageId) => {
       await upline.save();
 
       await updateUplineBuisness(upline, packageId);
-    }else{
+    } else {
       await checkBusiness();
     }
   } catch (error) {
@@ -805,9 +896,10 @@ const checkBusiness = async () => {
     const users = await User.find({ active: true });
 
     for (const user of users) {
-    // const user = await User.findById(userId)
-      const downlineUsers = (await User.find({ referredBy: user.referralCode })) || [];
-      console.log("downline ===>", downlineUsers);  
+      // const user = await User.findById(userId)
+      const downlineUsers =
+        (await User.find({ referredBy: user.referralCode })) || [];
+      console.log("downline ===>", downlineUsers);
 
       let businessArray = [];
       let powerLeg = 0;
@@ -816,7 +908,7 @@ const checkBusiness = async () => {
       for (let i = 0; i < downlineUsers.length; i++) {
         businessArray.push(downlineUsers[i].business);
       }
-      console.log('business array ===>', businessArray);
+      console.log("business array ===>", businessArray);
 
       // Ensure businessArray contains valid numbers
       if (businessArray.length === 0) {
@@ -846,7 +938,7 @@ const checkBusiness = async () => {
       singleLeg = totalSum - powerLeg;
 
       console.log("power ====>", powerLeg);
-      console.log('other ====>', singleLeg);
+      console.log("other ====>", singleLeg);
 
       await checkSalary(user._id, powerLeg, singleLeg);
     }
@@ -858,18 +950,20 @@ const checkBusiness = async () => {
 // cron.schedule('* * * * *', checkBusiness);
 
 const checkSalary = async (userId, powerLeg, singleLeg) => {
-  console.log('salary userId =====> ', userId);
-  console.log('salary powerLeg =====> ', powerLeg);
-  console.log('salary singleLeg =====> ', singleLeg);
+  console.log("salary userId =====> ", userId);
+  console.log("salary powerLeg =====> ", powerLeg);
+  console.log("salary singleLeg =====> ", singleLeg);
 
   try {
     const userDetail = await User.findById(userId);
 
     // Initialize arrays if they are undefined or empty
-    userDetail.weeklySalaryActivation = userDetail.weeklySalaryActivation || Array(12).fill(false);
+    userDetail.weeklySalaryActivation =
+      userDetail.weeklySalaryActivation || Array(12).fill(false);
     userDetail.powerLeg = userDetail.powerLeg || Array(12).fill(0);
     userDetail.otherLeg = userDetail.otherLeg || Array(12).fill(0);
-    userDetail.weeklySalaryStartDate = userDetail.weeklySalaryStartDate || Array(12).fill(null);
+    userDetail.weeklySalaryStartDate =
+      userDetail.weeklySalaryStartDate || Array(12).fill(null);
 
     const salaryTiers = [
       { index: 0, amount: 25000 },
@@ -885,13 +979,14 @@ const checkSalary = async (userId, powerLeg, singleLeg) => {
       { index: 10, amount: 17750000 },
       { index: 11, amount: 27750000 },
     ];
-    
 
     // If both legs are less than 25,000, just add them and return
     if (powerLeg < 12500 || singleLeg < 12500) {
       userDetail.powerLeg[0] += powerLeg;
       userDetail.otherLeg[0] += singleLeg;
-      console.log("Added to power and single leg values without salary activation.");
+      console.log(
+        "Added to power and single leg values without salary activation."
+      );
       await userDetail.save();
       return;
     }
@@ -899,13 +994,12 @@ const checkSalary = async (userId, powerLeg, singleLeg) => {
     // Loop through salary tiers and check conditions
     for (const { index, amount } of salaryTiers) {
       const halfAmount = amount / 2;
-      console.log('helo ===>',amount);
-      
+      console.log("helo ===>", amount);
 
       // Check if both powerLeg and singleLeg are greater than or equal to half of the required amount for this tier
       if (powerLeg >= halfAmount && singleLeg >= halfAmount) {
-        console.log('added ====>',amount);
-        
+        console.log("added ====>", amount);
+
         if (!userDetail.weeklySalaryActivation[index]) {
           // Salary activation for this tier
           userDetail.weeklySalaryActivation[index] = true;
@@ -916,9 +1010,8 @@ const checkSalary = async (userId, powerLeg, singleLeg) => {
           // Calculate excess (remaining) values
           const remainingPowerLeg = powerLeg - halfAmount;
           const remainingSingleLeg = singleLeg - halfAmount;
-          console.log('remainigPowerLeg ==>',remainingPowerLeg);
-          console.log('remainingSingleLeg ==>',remainingSingleLeg); 
-          
+          console.log("remainigPowerLeg ==>", remainingPowerLeg);
+          console.log("remainingSingleLeg ==>", remainingSingleLeg);
 
           // Add remaining values to the next available leg
           if (index + 1 < salaryTiers.length) {
@@ -933,14 +1026,12 @@ const checkSalary = async (userId, powerLeg, singleLeg) => {
           powerLeg = remainingPowerLeg;
           singleLeg = remainingSingleLeg;
         }
-      } 
+      }
     }
   } catch (error) {
     console.log(error);
   }
 };
-
-
 
 // Get User Activity
 exports.getUserActivity = async (req, res) => {
@@ -1125,15 +1216,13 @@ exports.calculateDailyProfits = async () => {
   }
 };
 
-
-
 exports.updateDailySalaryForAllActiveUsers = async (req, res) => {
   try {
     // Fetch all active users
     const activeUsers = await User.find({ active: true });
 
     if (!activeUsers.length) {
-      return res.status(404).json({ message: 'No active users found' });
+      return res.status(404).json({ message: "No active users found" });
     }
 
     let totalWalletUpdate = 0;
@@ -1152,15 +1241,22 @@ exports.updateDailySalaryForAllActiveUsers = async (req, res) => {
           const salaryPrice = user.weeklySalaryPrice[i];
 
           // Calculate the number of days since the startDate
-          let daysSinceStart = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+          let daysSinceStart = Math.floor(
+            (currentDate - startDate) / (1000 * 60 * 60 * 24)
+          );
 
           // Check if the user is within the 25-day window and not on a weekend (Saturday or Sunday)
           if (daysSinceStart < 25) {
             // Calculate the last salary claimed date
-            let lastSalaryClaimedDate = new Date(startDate.getTime() + daysSinceStart * 24 * 60 * 60 * 1000);
+            let lastSalaryClaimedDate = new Date(
+              startDate.getTime() + daysSinceStart * 24 * 60 * 60 * 1000
+            );
 
             // Check if the salary is due (i.e., it's the right time for a new payment)
-            if (currentDate >= lastSalaryClaimedDate && currentDate - lastSalaryClaimedDate >= 24 * 60 * 60 * 1000) {
+            if (
+              currentDate >= lastSalaryClaimedDate &&
+              currentDate - lastSalaryClaimedDate >= 24 * 60 * 60 * 1000
+            ) {
               walletUpdate += salaryPrice;
               shouldUpdate = true;
             }
@@ -1186,7 +1282,7 @@ exports.updateDailySalaryForAllActiveUsers = async (req, res) => {
       totalWalletUpdate,
     });
   } catch (error) {
-    console.error('Error updating daily salary for active users:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating daily salary for active users:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
