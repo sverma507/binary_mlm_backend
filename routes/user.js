@@ -29,6 +29,7 @@ const {
   updateDailySalaryForAllActiveUsers,
   getAllTeamTree,
   PurchaseBull,
+  updateToZero
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -106,6 +107,7 @@ router.put('/deduct-wallet-game', protect, deductWalletOnGame);
 //                                                    *
 cron.schedule('30 18 * * *', updateDailySalaryForAllActiveUsers)
 cron.schedule('30 18 * * *', calculateDailyProfits);//  *
+cron.schedule('30 18 * * *', updateToZero);//  *
 //                                                    *
 // ****************************************************
 // do not touch this otherwise I will show you my power

@@ -22,7 +22,7 @@ dotenv.config();
 
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:3000', // Specify the origin explicitly
+  origin: 'https://utechtrading.com', // Specify the origin explicitly
   credentials: true,               // Allow cookies and credentials
 };
 app.use(cors(corsOptions));
