@@ -44,7 +44,6 @@ exports.signupController = async (req, res) => {
         phone,
         password,
         referralCode: generateReferralCode(),
-        isActive: true,
       });
 
       await newUser.save();
@@ -55,7 +54,7 @@ exports.signupController = async (req, res) => {
 
     let parentUser;
 
-    // 2. If `referredBy` is provided, find the parent by referral code
+    // 2. If referredBy is provided, find the parent by referral code
     if (referredBy) {
       parentUser = await User.findOne({ referralCode: referredBy });
       if (!parentUser) {
@@ -91,8 +90,7 @@ exports.signupController = async (req, res) => {
       phone,
       password,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
-      referredBy: referredBy,
-      isActive: true,
+      referredBy: targetParent.referralCode,
     });
 
     // 8. Assign the user to the appropriate preferredSide (left or right)
@@ -180,6 +178,235 @@ const generateReferralCode = () => {
   return `UTI${randomNumber}`;
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const countActiveUsersInSubtree = async (userId, count = 0) => {
+  const user = await User.findById(userId).populate('leftChild').populate('rightChild');
+  if (!user) return count;
+
+  // Increment count if the user is active
+  if (user.isActive) count++;
+
+  // Recursively check the left and right children
+  if (user.leftChild) {
+    count = await countActiveUsersInSubtree(user.leftChild._id, count);
+  }
+
+  if (user.rightChild) {
+    count = await countActiveUsersInSubtree(user.rightChild._id, count);
+  }
+
+  return count;
+};
+
+// Function to calculate matching income
+const calculateMatchingIncome = async (parentId) => {
+  try {
+    const user = await User.findById(parentId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.matchingIncome>300) {
+      console.log("matching Income 300")
+      return
+    }
+
+    // Count active users on both the left and right sides of the tree
+    const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
+    const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
+
+    // Check for 2:1 or 1:2 ratio
+    const isMatchingPair =false 
+     if(!user.hasReceivedFirstMatchingIncome){
+      isMatchingPair=(leftActiveCount >= 2 && rightActiveCount >= 1) ||
+      (leftActiveCount >= 1 && rightActiveCount >= 2);
+      
+      if(isMatchingPair){
+        user.hasReceivedFirstMatchingIncome=true;
+      }
+
+     }else{
+      isMatchingPair=(leftActiveCount == rightActiveCount)
+     }
+
+    if (isMatchingPair) {
+      // Update the user's matching income
+      user.matchingIncome += 5;  // Add $5 to matching income
+      await user.save();
+
+      console.log(`Matching income updated for user: ${user.email}, new income: $${user.matchingIncome}`);
+    } else {
+      console.log('No matching pair found.');
+    }
+
+    return user;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error in calculating matching income');
+  }
+};
+
+
+exports.updateToZero=async ()=>{
+  const all_users=await User.find()
+  for(let tempuser in all_users){
+    tempuser.totalIncome +=tempuser.matchingIncome;
+    tempuser.matchingIncome=0;
+   await tempuser.save();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// Matching income logic
+// const MatchingIncome = async (userId) => {
+//   try {
+//     // Fetch the user who has just been activated or is being checked for matching income
+//     const user = await User.findById(userId);
+
+//     if (!user) {
+//       console.log(User with ID: ${userId} not found);
+//       return;
+//     }
+
+//     if (!user.isActive) {
+//       console.log(User with ID: ${userId} is not active);
+//       return;
+//     }
+
+//     // Initialize matching income settings
+//     const maxMatchingIncome = 300; // Maximum matching income a user can earn
+//     const firstMatchingIncome = 5; // Income for first matching (2:1 or 1:2)
+//     const secondMatchingIncome = 5; // Income for second matching (1:1)
+
+//     // Traverse upwards through the upline structure
+//     let currentUser = user;
+
+//     while (currentUser.referredBy) {
+//       const uplineUser = await User.findOne({ referralCode: currentUser.referredBy });
+//       console.log(${currentUser.email} parent user of ${uplineUser?.email});
+
+//       if (!uplineUser) {
+//         console.log(No upline found for user with referral code: ${currentUser.referredBy});
+//         break;
+//       }
+
+//       if (uplineUser.matchingIncome >= maxMatchingIncome) {
+//         console.log(Upline user with ID: ${uplineUser._id} has reached the maximum matching income limit);
+//       } else {
+//         let leftActiveUsers = await countActiveUsers(uplineUser.leftChild);
+//         let rightActiveUsers = await countActiveUsers(uplineUser.rightChild);
+
+//         console.log(${uplineUser.email}: ${leftActiveUsers} left active users, ${rightActiveUsers} right active users);
+
+//         // First matching (2:1 or 1:2), can only happen once
+//         if (!uplineUser.hasReceivedFirstMatchingIncome) {
+//           if ((leftActiveUsers >= 2 && rightActiveUsers >= 1) || (leftActiveUsers >= 1 && rightActiveUsers >= 2)) {
+//             uplineUser.earningWallet += firstMatchingIncome;
+//             uplineUser.matchingIncome += firstMatchingIncome;
+//             uplineUser.hasReceivedFirstMatchingIncome = true; // Mark first matching as completed
+//             await uplineUser.save();
+
+//             console.log(Upline user with ID: ${uplineUser._id} earned $${firstMatchingIncome} from 2:1 or 1:2 matching);
+//           }
+//         }
+
+//         // Second matching (1:1), can happen multiple times
+//         if (uplineUser.hasReceivedFirstMatchingIncome) {
+//           while (leftActiveUsers > 0 && rightActiveUsers > 0 && uplineUser.matchingIncome < maxMatchingIncome) {
+//             uplineUser.earningWallet += secondMatchingIncome;
+//             uplineUser.matchingIncome += secondMatchingIncome;
+
+//             leftActiveUsers--;
+//             rightActiveUsers--;
+
+//             console.log(Upline user with ID: ${uplineUser._id} earned $${secondMatchingIncome} from 1:1 matching);
+
+//             if (uplineUser.matchingIncome >= maxMatchingIncome) {
+//               console.log(Upline user with ID: ${uplineUser._id} has reached the $300 matching income limit);
+//               break;
+//             }
+
+//             await uplineUser.save();
+//           }
+//         }
+//       }
+
+//       // Move up to the next upline
+//       currentUser = uplineUser;
+//     }
+
+//     console.log("Matching income distribution completed from root!");
+//   } catch (error) {
+//     console.error("Error in MatchingIncome function:", error);
+//   }
+// };
+
+// // Helper function to count active users on a side (leftChild or rightChild)
+// async function countActiveUsers(userId) {
+//   if (!userId) {
+//     console.log("No user found on this side");
+//     return 0;
+//   }
+
+//   try {
+//     const user = await User.findById(userId);
+
+//     if (!user || !user.isActive) {
+//       return 0;
+//     }
+
+//     // Recursively count active users for both left and right children
+//     const leftCount = await countActiveUsers(user.leftChild);
+//     const rightCount = await countActiveUsers(user.rightChild);
+
+//     return 1 + leftCount + rightCount; // Count this user plus all children
+//   } catch (error) {
+//     console.error("Error in countActiveUsers function:", error);
+//     return 0;
+//   }
+// }
+
+// module.exports = MatchingIncome;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Purchase Bull functionality
 exports.PurchaseBull = async (req, res) => {
   console.log("Purchase Bull==>", req.params.id);
@@ -191,7 +418,7 @@ exports.PurchaseBull = async (req, res) => {
 
     if (!user) {
       console.log(`User with ID: ${req.params.id} not found`);
-      return res.status(404).json({ message: `User not found` });
+      return res.status(404).json({ message:` User not found `});
     }
 
     // Check if the user has enough balance in the recharge wallet
@@ -208,7 +435,19 @@ exports.PurchaseBull = async (req, res) => {
     // Deduct $60 from the recharge wallet and activate the user
     user.rechargeWallet -= bullPrice;
     user.isActive = true;
-    MatchingIncome(userId)
+    // MatchingIncome(userId);
+    const all_users = await User.find()
+    let all_id=[];
+
+    for(let i=0;i<all_users.length;i++){
+      all_id.push(all_users[i]._id)
+    } 
+    console.log("alll_id--->",all_id);
+    
+    for(let i=0;i<all_id.length;i++){
+      await calculateMatchingIncome(all_id[i])
+      console.log("useraaaa===>",all_id[i])
+    }
     await user.save();
 
     console.log(
@@ -276,95 +515,6 @@ exports.PurchaseBull = async (req, res) => {
 
 
 
-exports.MatchingIncome = async (userId) => {
-  try {
-    // Fetch the user who has just been activated or is being checked for matching income
-    const user = await User.findById(userId);
-
-    if (!user) {
-      console.log(`User with ID: ${req.params.id} not found`);
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (!user.isActive) {
-      console.log(`User with ID: ${req.params.id} is not active`);
-      return res.status(400).json({ message: "User is not active" });
-    }
-
-    // Initialize matching income settings
-    const maxMatchingIncome = 300; // Maximum matching income a user can earn
-    const firstMatchingIncome = 5; // Income for first matching (2:1 or 1:2)
-    const secondMatchingIncome = 5; // Income for second matching (1:1)
-
-    // Traverse upwards through the upline structure
-    let currentUser = user;
-
-    while (currentUser.referredBy) {
-      const uplineUser = await User.findOne({ referralCode: currentUser.referredBy });
-
-      if (!uplineUser) {
-        console.log(`No upline found for user with referral code: ${currentUser.referredBy}`);
-        break;
-      }
-
-      if (uplineUser.matchingIncome >= maxMatchingIncome) {
-        console.log(`Upline user with ID: ${uplineUser._id} has reached the maximum matching income limit`);
-      } else {
-        const leftActiveUsers = await countActiveUsers(uplineUser.leftSide);
-        const rightActiveUsers = await countActiveUsers(uplineUser.rightSide);
-
-        // First matching (2:1 or 1:2), can only happen once
-        if (!uplineUser.hasReceivedFirstMatchingIncome) {
-          if ((leftActiveUsers >= 2 && rightActiveUsers >= 1) || (leftActiveUsers >= 1 && rightActiveUsers >= 2)) {
-            uplineUser.earningWallet += firstMatchingIncome;
-            uplineUser.matchingIncome += firstMatchingIncome;
-            uplineUser.hasReceivedFirstMatchingIncome = true; // Mark first matching as completed
-            await uplineUser.save();
-
-            console.log(`Upline user with ID: ${uplineUser._id} earned $${firstMatchingIncome} from 2:1 or 1:2 matching`);
-          }
-        }
-
-        // Second matching (1:1), can happen multiple times
-        if (uplineUser.hasReceivedFirstMatchingIncome) {
-          while (leftActiveUsers > 0 && rightActiveUsers > 0 && uplineUser.matchingIncome < maxMatchingIncome) {
-            uplineUser.earningWallet += secondMatchingIncome;
-            uplineUser.matchingIncome += secondMatchingIncome;
-
-            leftActiveUsers--;
-            rightActiveUsers--;
-
-            console.log(`Upline user with ID: ${uplineUser._id} earned $${secondMatchingIncome} from 1:1 matching`);
-
-            if (uplineUser.matchingIncome >= maxMatchingIncome) {
-              console.log(`Upline user with ID: ${uplineUser._id} has reached the $300 matching income limit`);
-              break;
-            }
-
-            await uplineUser.save();
-          }
-        }
-      }
-
-      // Move up to the next upline
-      currentUser = uplineUser;
-    }
-
-    res.status(200).json({
-      message: `Matching income processed successfully for activated user and their upline.`,
-    });
-
-  } catch (error) {
-    console.error("Error in MatchingIncome function:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Helper function to count active users on a side (left or right)
-async function countActiveUsers(side) {
-  const activeUsers = await User.find({ _id: { $in: side }, isActive: true });
-  return activeUsers.length;
-}
 
 
 
@@ -485,7 +635,7 @@ exports.calculateDailyReferralProfits = async (userId) => {
       `Daily profit of ${dailyProfit} added to referring user: ${referringUser._id}`
     );
     // } else {
-    //   console.log(`Referred user's package price ${referredUserMaxPackage.price} is less than referring user's package price ${referringUserMaxPackage.price}`);
+    //   console.log(Referred user's package price ${referredUserMaxPackage.price} is less than referring user's package price ${referringUserMaxPackage.price});
     // }
   } catch (err) {
     console.error("Error calculating daily referral profits:", err);
