@@ -449,8 +449,8 @@ exports.PurchaseBull = async (req, res) => {
       console.log("useraaaa===>",all_id[i])
     }
     // MatchingIncome(userId);
-    const all_users = await User.find()
-    let all_id=[];
+    // const all_users = await User.find()
+    // let all_id=[];
 
     for(let i=0;i<all_users.length;i++){
       all_id.push(all_users[i]._id)

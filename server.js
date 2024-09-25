@@ -21,11 +21,8 @@ dotenv.config();
 
 
 const app = express();
-const corsOptions = {
-  origin: 'https://utechtrading.com', // Specify the origin explicitly
-  credentials: true,               // Allow cookies and credentials
-};
-app.use(cors(corsOptions));
+
+app.use(cors());
 
 app.use(express.json());
 app.use(fileUpload({
