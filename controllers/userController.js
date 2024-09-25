@@ -91,7 +91,7 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
       phone,
       password,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
-      referredBy: targetParent.referralCode,
+      referredBy: referredBy,
       isActive: true,
     });
 
