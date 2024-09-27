@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, required:true },
   referralCode: { type: String, unique: true},
   referredBy: { type: String },
+  walletAddress: { type: String , required:true},
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   earningWallet: { type: Number, default: 0 },  // Total amount in wallet

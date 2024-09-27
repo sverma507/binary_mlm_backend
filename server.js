@@ -22,7 +22,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: 'https://www.utechtrading.com',
+  // origin: 'https://www.utechtrading.com',
+  origin: 'http://localhost:3000',
   methods: 'GET,POST,PUT,DELETE,OPTIONS',
   credentials: true
 }));

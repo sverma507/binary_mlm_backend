@@ -19,7 +19,10 @@ const RESPONSE_URL = "https://tejafinance.in/pg/payment/{token}/response";
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
-  const { email, phone, password, referredBy, preferredSide } = req.body;
+  const { email, phone, password, referredBy, walletAddress, preferredSide } = req.body;
+
+  console.log("wallet===>", req.body.walletAddress);
+  console.log("Type:", typeof walletAddress);   
   console.log("dataa=>>>", req.body);
 
   try {
@@ -38,11 +41,14 @@ exports.signupController = async (req, res) => {
     // 1. Check if this is the first user (no users in the system)
     const userCount = await User.countDocuments();
     if (userCount === 0) {
+      console.log("wallet inside if ===>", req.body.walletAddress);
+
       // If this is the first user, no need for referredBy or preferredSide
       const newUser = new User({
         email,
         phone,
         password,
+        walletAddress,
         referralCode: generateReferralCode(),
       });
 
@@ -84,6 +90,10 @@ exports.signupController = async (req, res) => {
         });
     }
 
+
+
+    console.log("wallet inside if ===>", req.body.walletAddress);
+
     // 7. Create the new user
     const newUser = new User({
       email,
@@ -91,6 +101,7 @@ exports.signupController = async (req, res) => {
       password,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
+      walletAddress
     });
 
     // 8. Assign the user to the appropriate preferredSide (left or right)
