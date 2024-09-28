@@ -1,9 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const User = require('../models/User');
-const Package = require('../models/Package');
-const Payments =require('../models/payment')
-const Transaction = require('../models/Transaction');
 const WithdrawPaymentRequest =require('../models/withdrawPaymentRequest')
 const QrPaymentRequest = require('../models/qrPayment'); 
 const cloudinary = require('cloudinary').v2;

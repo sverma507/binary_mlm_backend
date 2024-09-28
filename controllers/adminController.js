@@ -1,116 +1,12 @@
 const User = require('../models/User');
-const Transaction = require('../models/Transaction');
 const Package = require('../models/Package');
-const cron = require('node-cron');
 const jwt = require('jsonwebtoken');
-const Payments =require('../models/payment')
 const AdminCredentials = require('../models/Admin/Admin');
 const JWT_SECRET = process.env.JWT_SECRET;
 const Product = require('../models/addPackage');
 const WithdrawPaymentRequest = require('../models/withdrawPaymentRequest');
-const { calculateDailyReferralProfits } = require('./userController');
 const ActivationTransaction = require('../models/activationTransaction');
-const upiDeposite = require('../models/upiDeposite');
-const QrPaymentRequest = require('../models/qrPayment'); 
-// const activationTransaction = require('../models/activationTransaction');
 
-
-
-// Controller to handle approving a QR payment
-exports.approveQRPayment = async (req, res) => {
-  try {
-    const { transactionId,userId } = req.body;
-    console.log("======>",userId)
-
-    const user=await User.findById(userId)
-    const transaction = await QrPaymentRequest.findById(transactionId);
-
-    if (!transaction) {
-      return res.status(404).json({ status: false, message: "Transaction not found" });
-    }
-
-    user.rechargeWallet +=transaction.amount;
-    await user.save();
-    transaction.paymentStatus = "Approved";
-
-    await transaction.save();
-
-    res.status(200).json({ status: true, message: "Transaction approved successfully" });
-  } catch (error) {
-    console.error("Error approving QR payment", error);
-    res.status(500).json({ status: false, message: "Server error" });
-  }
-};
-
-// Controller to handle rejecting a QR payment
-exports.rejectQRPayment = async (req, res) => {
-  try {
-    const { transactionId } = req.body;
-    const transaction = await QrPaymentRequest.findById(transactionId);
-
-    if (!transaction) {
-      return res.status(404).json({ status: false, message: "Transaction not found" });
-    }
-
-    transaction.paymentStatus = "Rejected";
-    await transaction.save();
-
-    res.status(200).json({ status: true, message: "Transaction rejected successfully" });
-  } catch (error) {
-    console.error("Error rejecting QR payment", error);
-    res.status(500).json({ status: false, message: "Server error" });
-  }
-};
-
-
-
-
-exports.getAllQrPaymentRequests=async (req,res) =>{
-    try { 
-  
-
-      const transactions = await QrPaymentRequest.find();
-  
-      if (!transactions || transactions.length === 0) {
-        return res.status(200).json({
-          success: true,
-          message: 'No transactions found for this user.',
-          data: [],
-        });
-      }
-  
-      // If transactions are found, send them in the response
-      return res.status(200).json({
-        success: true,
-        message: 'All Processing Requests',
-        data: transactions,
-      });
-    } catch (error) {
-      console.error('Error fetching requests:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve All Requests.',
-        error: error.message,
-      });
-    }
-  
-}
-
-
-exports.getTotalINRCollection=async (req,res) =>{
-  try{
-    const result =await upiDeposite.find({status:"success"})
-    if (!result ) {
-      return res.status(404).json({ message: 'Transaction not found' });
-    }
-
-    res.status(200).json(result);
-
-  }catch(err){
-    console.log("error in  getting all the transcation of upi deposite");
-    res.status(500).json({ message: 'Server error while get all transcation from upi deposite'});
-  }
-}
 
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
@@ -193,44 +89,6 @@ exports.getAllWithdrawRequests = async (req, res) => {
   }
 };
 
-exports.ALLFundRequests=async(req,res)=>{
- try{
-  const result=await Payments.find()
-  console.log("admin payments=>",result);
-  res.status(200).send(result)
-  
- }catch(err){
-  console.log(err);
-  
- }
-}
-
-
-
-
-exports.UpdatePaymentStatus = async (req, res) => {
-  try {
-    const { transactionId } = req.params; // Get the transaction ID from the request parameters
-    const { paymentStatus } = req.body; // Get the new payment status from the request body
-
-    // Find the transaction by its ID and update its payment status
-    const updatedTransaction = await Payments.findByIdAndUpdate(
-      transactionId,
-      { paymentStatus: paymentStatus },
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedTransaction) {
-      return res.status(404).send({ message: "Transaction not found" });
-    }
-
-    console.log("Updated transaction=>", updatedTransaction);
-    res.status(200).send(updatedTransaction);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "Error updating payment status" });
-  }
-};
 
 
 exports.AdminRegister = async (req, res) => {
@@ -325,70 +183,6 @@ exports.getDownlineUsers = async (req, res) => {
   }
 };
 
-
-exports.getAllBlockedUsers = async (req, res) => {
-  try {
-    const users = await User.find({ blocked: true });
-    res.status(200).json(users);
-  } catch (err) {
-    console.log("no user");
-    res.status(400).json({ error: err.message });
-  }
-};
-
-exports.activateUser = async (req, res) => {
-  // const { referralCode, packageId } = req.body;
-  // console.log("req.body====>", req.body);
-
-  try {
-    const { packageId, referralCode } = req.body;
-    // console.log('body ==>',req.body);
-    
-    // Find the package by ID
-    const packageData = await Product.findById(packageId);
-    if (!packageData) {
-      return res.status(404).json({ error: 'Package not found' });
-    }
-    // console.log(packageData);
-    
-
-    // Find the user who is purchasing the package
-    const user = await User.findOne({referralCode});
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    // console.log('user ==>',user);
-    
-    user.active = true;
-    // console.log("user,spin=>",user.spinCount);
-    user.spinCount += 1;
-    user.packages.push(packageData);
-    user.purchaseDate.push(Date.now());
-    user.claimBonus.push(false);
-    user.myRoi.push(0);
-
-    await user.save();
-
-    const activation = new ActivationTransaction({
-      user: user.referralCode,
-      email: user.email,
-      mobileNumber: user.mobileNumber,
-      activateBy: 'admin',
-      package:packageData.name,
-      packagePrice:packageData.price  
-    });
-    // console.log('income ==>',profitTransaction);
-    
-    await activation.save();
-    // await calculateDailyReferralProfits(user._id);
-    res.status(200).json({ message: 'User activated and package assigned', user });
-    // console.log({ message: 'User activated and package assigned', user });
-    
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
-  }
-};
-
 exports.getActivationList = async (req, res) => {
   try {
     const result = await ActivationTransaction.find();
@@ -401,79 +195,10 @@ exports.getActivationList = async (req, res) => {
   }
 };
 
-exports.updateUserBlockedStatus = async (req, res) => {
-  const { id } = req.params;
-  const { blocked } = req.body;
-
-  try {
-    const user = await User.findById({ _id: id });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    user.blocked = blocked;
-    await user.save();
-
-    res.status(200).json({ success: true, message: `User ${blocked ? 'blocked' : 'unblocked'} successfully` });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
-exports.addOrDeductWallet = async(req, res) => {
-  const { userId, amount, transactionType, walletType, description } = req.body;
-  console.log('body ==>', req.body);
-  
-  try {
-    const user = await User.findOne({ referralCode: userId });
-    
-    if (!user) {
-      console.log('No user found');
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    console.log('user ==>', user);
-
-    if (transactionType === 'add') {
-      if (walletType === 'r-wallet') {
-        user.rechargeWallet += Number(amount);
-      } else {
-        user.wallet += Number(amount);
-        user.totalEarning += Number(amount);
-      }
-    } else {
-      if (walletType === 'r-wallet') {
-        user.rechargeWallet -= Number(amount);
-      } else {
-        user.wallet -= Number(amount);
-      }
-    }
-
-    console.log("userWallet ==>", user);
-    console.log(`user.id => ${user._id}, amount => ${amount}, type => ${transactionType}`);
-
-    await user.save();
-
-    const transaction = new Transaction({
-      user: user._id,
-      amount,
-      type: transactionType,
-      description,
-    });
-
-    await transaction.save();
-    res.status(200).json(user);
-    
-  } catch (err) {
-    console.error("Error occurred:", err.message);
-    res.status(400).json({ error: err.message });
-  }
-}
 
 exports.getAllUnPaidUsers = async (req, res) => {
   try {
-    const users = await User.find({ active: false });
+    const users = await User.find({ isActive: false });
     res.status(200).json(users);
   } catch (err) {
     console.log("no user");
@@ -543,16 +268,6 @@ exports.updateUserProfile = async (req, res) => {
     });
   }
 };
-
-exports.getAllTransactions = async (req, res) => {
-  try {
-    const transactions = await Transaction.find().populate('user');
-    res.status(200).json(transactions);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
 exports.managePackages = async (req, res) => {
   try {
     const { name, price, photo1, photo2, description, purchaseDate, supply, user } = req.body;

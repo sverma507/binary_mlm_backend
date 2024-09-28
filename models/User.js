@@ -9,6 +9,31 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String },
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  rankSalaryActivation: {
+    type: [Boolean], 
+    default: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+  },
+  rankSalaryStartDate: {
+    type: [Date], 
+    default: [
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0),
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0),
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0), 
+      new Date().setHours(0, 0, 0, 0), new Date().setHours(0, 0, 0, 0)
+    ]
+  },
   earningWallet: { type: Number, default: 0 },  // Total amount in wallet
   rechargeWallet:{ type: Number, default: 0 },
   directIncome: { type: Number, default: 0 },  // Direct bot income

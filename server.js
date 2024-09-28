@@ -6,14 +6,9 @@ const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payment');
 const chatbotRoute = require('./routes/chatbot');
-const upiPaymentRoutes = require('./routes/upiPayment')
 const payoutRoutes = require('./routes/payout')
-const { calculateDailyProfits, calculateDailyReferralProfits, uptimeRobot } = require('./controllers/userController');
-// const { sendSmsCode } = require('./controllers/authController'); // Corrected the import path
-const cron = require('node-cron');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-const {addGameProfitToUsers} = require('./routes/testing');
 const { calculateLegBusinessPerLevel } = require('./controllers/business');
 
 dotenv.config();
@@ -50,7 +45,6 @@ app.use('/api/v1/payment', paymentRoutes);
 app.use('/api/chatbot', chatbotRoute);
 // app.use('/api/v1/upi-payment',upiPaymentRoutes);
 app.use('/api/v1/payout',payoutRoutes);
-app.use('/api/v1/test-with',addGameProfitToUsers)
 app.get('/api/v1/user/salary/:userId', async (req, res) => {
   try {
     const user = req.params.userId; // Assuming user is authenticated

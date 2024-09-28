@@ -3,7 +3,6 @@ const User = require('../models/User');
 const Admin = require('../models/admin.js');
 const crypto = require('crypto');
 const dotenv = require('dotenv');
-const salaryTransaction = require('../models/salaryTransaction.js');
 dotenv.config();
 
 const generateReferralCode = () => {
