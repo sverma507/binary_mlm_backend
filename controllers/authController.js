@@ -91,8 +91,8 @@ exports.login = async (req, res) => {
   console.log("data===>",req.body);
   
   try {
-    const { mobileNumber, email, password } = req.body;
-    const user = await User.findOne(mobileNumber ? { mobileNumber } : { email });
+    const { phone, email, password } = req.body;
+    const user = await User.findOne(phone ? { phone } : { email });
 
     if (!user) {
       return res.status(400).json({
