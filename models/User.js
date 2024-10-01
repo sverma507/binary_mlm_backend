@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String },
   walletAddress: { type: String , required:true},
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  tradingWallet: { type: Number, default:0 },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rankSalaryActivation: {
     type: [Boolean], 

@@ -36,7 +36,8 @@ exports.signupController = async (req, res) => {
         phone,
         password,
         walletAddress,
-        referralCode: generateReferralCode(),
+        // referralCode: generateReferralCode(),
+        referralCode: walletAddress,
       });
 
       await newUser.save();
@@ -86,7 +87,8 @@ exports.signupController = async (req, res) => {
       email,
       phone,
       password,
-      referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
+      // referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
+      referralCode: walletAddress, // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
       walletAddress
     });
@@ -583,21 +585,24 @@ exports.PurchaseBull = async (req, res) => {
       await uplineUser.save();
 
       const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;
-      const newBotIncome = new botIncome({
-        
-        user: user.referralCode,
-        email: user.email,
-        mobileNumber: user.mobileNumber,
-        activateBy: 'admin',
-        package:packageData.name,
-        packagePrice:packageData.price  
-      });
+      
+
       console.log(uplineMessage);
       levelMessages.push(uplineMessage);
 
       // Set the current user to the upline for the next iteration
       currentUser = uplineUser;
     }
+
+    const activation = new ActivationTransaction({
+      user: user.referralCode,
+      email: user.email,
+      mobileNumber: user.phone,
+      activateBy: 'user',
+    });
+
+
+    await activation.save();
 
     // Send response with success message and details of profit distribution
     res.status(200).json({
@@ -609,6 +614,21 @@ exports.PurchaseBull = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+
+
+
+
+//  trading income daily 
+
+exports.dailyTradingIncome = () => {
+  try {
+    
+  } catch (error) {
+    
+  }
+}
 
 
 

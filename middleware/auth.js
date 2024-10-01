@@ -30,8 +30,11 @@ exports.adminProtect = async (req, res, next) => {
   
   let token;
   if (req.headers.authorization) {
-    token = req.headers.authorization;
+    token = req.headers.authorization.replace('Bearer ', '');
   }
+
+  // console.log("......",token);
+  
 
   if (!token) {
     return res.status(401).json({ error: 'Not authorized' });
