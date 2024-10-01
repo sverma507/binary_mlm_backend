@@ -28,7 +28,7 @@ const {
   getAllSelfBonusList,
   updateDailySalaryForAllActiveUsers,
   getAllTeamTree,
-  PurchaseBull,
+  // PurchaseBull,
   updateToZero
 } = require("../controllers/userController");
 const {
@@ -36,6 +36,7 @@ const {
   getPoster,
 } = require("../controllers/productController");
 // const { getSalaryDetails } = require("../controllers/salary");
+const {PurchaseBull} =require('../controllers/testController')
 
 //purchase bull
 router.post("/purchase-bull/:id", protect, PurchaseBull);
