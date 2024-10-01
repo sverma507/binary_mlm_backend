@@ -40,7 +40,7 @@ const findAvailableSpot = async (userId, preferredSide) => {
 // Register User with the updated placement
 exports.signUp = async (req, res) => {
   try {
-      const { name, email, password, referredBy, preferredSide } = req.body;
+      const { name, email, password, referredBy, preferredSide, walletAddress} = req.body;
 
       // Check if the email already exists
       const existingUser = await User.findOne({ email });
@@ -60,6 +60,7 @@ exports.signUp = async (req, res) => {
           const newUser = new User({
               name,
               email,
+              walletAddress,
               password: password,
               referralCode: newReferralCodec,
               referredBy: referrer._id
@@ -122,13 +123,6 @@ exports.login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Login successful!',
-      // user: {
-      //   id: user._id,
-      //   name: user.name,
-      //   mobileNumber: user.mobileNumber,
-      //   email: user.email,
-      // },
-
       user :user,
       token,
     });

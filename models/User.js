@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, required:true },
   referralCode: { type: String, unique: true},
   referredBy: { type: String },
+  walletAddress: { type: String , required:true},
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rankSalaryActivation: {
@@ -36,6 +37,7 @@ const userSchema = new mongoose.Schema({
   },
   earningWallet: { type: Number, default: 0 },  // Total amount in wallet
   rechargeWallet:{ type: Number, default: 0 },
+  matchingWallet:{ type: Number, default: 0 },
   directIncome: { type: Number, default: 0 },  // Direct bot income
   matchingIncome: { type: Number, default: 0 },  // Matching income
   salaryIncome: { type: Number, default: 0 },  // Salary income

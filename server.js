@@ -16,11 +16,12 @@ dotenv.config();
 
 
 const app = express();
-const corsOptions = {
-  origin: 'http://localhost:3000', // Specify the origin explicitly
-  credentials: true,               // Allow cookies and credentials
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  // origin: 'https://www.utechtrading.com',
+  origin: 'http://localhost:3000',
+  methods: 'GET,POST,PUT,DELETE,OPTIONS',
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(fileUpload({
@@ -65,7 +66,7 @@ app.get('/keep-alive', (req, res) => {
 // Schedule daily, weekly, and monthly jobs
 // cron.schedule('0 0 * * *', calculateDailyProfits);
 
-const PORT = process.env.PORT || 5050;
+const PORT = process.env.PORT || 5051;
 app.listen(PORT, () => {
   console.log(`Server is running on port  ${PORT}`);
 });
