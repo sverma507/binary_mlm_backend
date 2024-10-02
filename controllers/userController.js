@@ -229,6 +229,9 @@ const calculateMatchingIncome = async (parentId) => {
     const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
     const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
 
+    console.log("leftActiveCount",leftActiveCount);
+    console.log("rightActiveCount",rightActiveCount);
+    
     // Check for 2:1 or 1:2 ratio
     const isMatchingPair = false 
      if(!user.hasReceivedFirstMatchingIncome){
@@ -354,6 +357,32 @@ exports.updateToZero=async ()=>{
 }
 
 
+exports.BotLevelIncome = async (req, res) => {
+  const userId = req.params.id;
+log("bolt level -id =>",userId)
+  try {
+    const result = await BotLevelIncome.find({ user: userId });
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No bot level income found for the specified user."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error during retrieving bot level income:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching bot level income. Please try again later."
+    });
+  }
+};
 
 
 
@@ -529,7 +558,7 @@ exports.PurchaseBull = async (req, res) => {
     console.log("alll_id--->",all_id);
     
     for(let i=0;i<all_id.length;i++){
-      await calculateMatchingIncome(all_id[i])
+      await calculateMatchingIncome(all_id[0])
       console.log("useraaaa===>",all_id[i])
     }
     // MatchingIncome(userId);

@@ -131,6 +131,9 @@ const calculateMatchingIncome = async (parentId) => {
     const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
     const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
 
+    console.log("=================================================leftActiveCount",leftActiveCount);
+    console.log("=================================================rightActiveCount",rightActiveCount);
+
     // Check for 2:1 or 1:2 ratio
     let isMatchingPair = false 
      if(!user.hasReceivedFirstMatchingIncome){
@@ -277,16 +280,6 @@ exports.activateUser = async (req, res) => {
     // MatchingIncome(userId);
     // const all_users = await User.find()
     // let all_id=[];
-
-    for(let i=0;i<all_users.length;i++){
-      all_id.push(all_users[i]._id)
-    } 
-    console.log("alll_id--->",all_id);
-    
-    for(let i=0;i<all_id.length;i++){
-      await calculateMatchingIncome(all_id[i])
-      console.log("useraaaa===>",all_id[i])
-    }
     await user.save();
 
     console.log(
