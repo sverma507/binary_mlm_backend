@@ -369,7 +369,8 @@ exports.activateUser = async (req, res) => {
 
       const newBotLevelIncome = new BotLevelIncome({
         user: uplineUser._id,
-        fromUser: user._id,
+        // fromUser: user._id,
+        fromUser: user.referralCode,
         level: level,
         percentage: profitDistribution[level].percentage,
         amount: profit,

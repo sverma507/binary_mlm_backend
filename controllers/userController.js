@@ -358,8 +358,9 @@ exports.updateToZero=async ()=>{
 
 
 exports.BotLevelIncome = async (req, res) => {
-  const userId = req.params.id;
-log("bolt level -id =>",userId)
+  console.log("helo================================")
+  const userId = req.params.userId;
+console.log("bolt level -id =>",userId)
   try {
     const result = await BotLevelIncome.find({ user: userId });
 
@@ -615,7 +616,8 @@ exports.PurchaseBull = async (req, res) => {
 
       const newBotLevelIncome = new BotLevelIncome({
         user: uplineUser._id,
-        fromUser: user._id,
+        // fromUser: user._id,
+        fromUser: user.referralCode,
         level: level,
         percentage: profitDistribution[level].percentage,
         amount: profit,

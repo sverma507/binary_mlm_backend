@@ -23,7 +23,7 @@ const {PurchaseBull} =require('../controllers/testController')
 
 //purchase bull
 router.post("/purchase-bull/:id", protect, PurchaseBull);
-router.post("/bot-level-income/:userId", protect, BotLevelIncome);
+router.get("/bot-level-income/:userId", protect, BotLevelIncome);
 router.get("/profile/:id", protect, getUserProfile);
 router.get("/withdraw-transactions/:id", protect, getWithdrawPaymentRequest);
 router.get("/team-members/:id/:level", protect, myTeamMembers);
