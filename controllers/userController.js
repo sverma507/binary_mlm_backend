@@ -582,6 +582,7 @@ exports.PurchaseBull = async (req, res) => {
 
       // Add the profit to the upline's earning wallet
       uplineUser.earningWallet += profit;
+
       await uplineUser.save();
 
       const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;

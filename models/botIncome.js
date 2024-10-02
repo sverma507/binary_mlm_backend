@@ -5,7 +5,6 @@ const botIncome = new mongoose.Schema({
     amount: { type: Number, required: true },
     fromUser: { type: String },
     level: { type: Number},
-    package: { type: String },
     netIncome: { type: Number },
 }, { timestamps: true });
 
