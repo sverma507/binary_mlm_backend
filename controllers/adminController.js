@@ -7,6 +7,8 @@ const Product = require('../models/addPackage');
 const WithdrawPaymentRequest = require('../models/withdrawPaymentRequest');
 const ActivationTransaction = require('../models/activationTransaction');
 const AddTransaction = require('../models/addAndDeduct')
+const BotLevelIncome = require("../models/botLevelIncome");
+const BotPurchased = require("../models/botIncome");
 
 
 exports.updateUser = async (req, res) => {
@@ -305,10 +307,15 @@ exports.activateUser = async (req, res) => {
     let levelMessages = [];
 
     for (let level = 0; level < profitDistribution.length; level++) {
+      console.log("level===========================", currentUser);
+      
       // Fetch the referring user (upline) based on the referralCode
       const uplineUser = await User.findOne({
         referralCode: currentUser.referredBy,
       });
+
+      console.log('uplineUser =======>',uplineUser);
+      
 
       if (!uplineUser) {
         console.log(
@@ -319,11 +326,26 @@ exports.activateUser = async (req, res) => {
       }
 
       // Calculate the profit for the upline
-      const profit = (bullPrice * profitDistribution[level].percentage) / 100;
+      const profit = (60 * profitDistribution[level].percentage) / 100;
 
       // Add the profit to the upline's earning wallet
       uplineUser.earningWallet += profit;
+
+      const newBotLevelIncome = new BotLevelIncome({
+        user: uplineUser._id,
+        fromUser: user._id,
+        level: level,
+        percentage: profitDistribution[level].percentage,
+        amount: profit,
+      })
+
+      await newBotLevelIncome.save();
+
       await uplineUser.save();
+
+
+      console.log("abc ==>",uplineUser.earningWallet);
+      
 
       const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;
       
@@ -345,6 +367,14 @@ exports.activateUser = async (req, res) => {
 
     console.log('hellooooooooooooooooooo');
     
+
+    const newBullPurchsed = new BotPurchased({
+      user: user._id,
+      amount: 60,
+      purchasedBy: "Admin"
+    })
+
+    await newBullPurchsed.save();
 
     
     await activation.save();

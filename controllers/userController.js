@@ -1,7 +1,8 @@
 const User = require("../models/User");
 const Product = require("../models/addPackage");
 const WithdrawPaymentRequest = require("../models/withdrawPaymentRequest");
-const botIncome = require("../models/botIncome");
+const BotPurchased = require("../models/botIncome");
+const BotLevelIncome = require("../models/botLevelIncome");
 
 // Adjust the path to your User model
 
@@ -36,8 +37,8 @@ exports.signupController = async (req, res) => {
         phone,
         password,
         walletAddress,
-        // referralCode: generateReferralCode(),
-        referralCode: walletAddress,
+        referralCode: generateReferralCode(),
+        // referralCode: walletAddress,
       });
 
       await newUser.save();
@@ -87,8 +88,8 @@ exports.signupController = async (req, res) => {
       email,
       phone,
       password,
-      // referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
-      referralCode: walletAddress, // Implement a function to generate a unique referral code
+      referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
+      // referralCode: walletAddress, // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
       walletAddress
     });
@@ -583,7 +584,16 @@ exports.PurchaseBull = async (req, res) => {
       // Add the profit to the upline's earning wallet
       uplineUser.earningWallet += profit;
 
+      const newBotLevelIncome = new BotLevelIncome({
+        user: uplineUser._id,
+        fromUser: user._id,
+        level: level,
+        percentage: profitDistribution[level].percentage,
+        amount: profit,
+      })
+
       await uplineUser.save();
+      await newBotLevelIncome.save();
 
       const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;
       
@@ -603,6 +613,13 @@ exports.PurchaseBull = async (req, res) => {
     });
 
 
+    const newBullPurchsed = new BotPurchased({
+      user: user._id,
+      amount: 60,
+      purchasedBy: "User"
+    })
+
+    await newBullPurchsed.save();
     await activation.save();
 
     // Send response with success message and details of profit distribution
