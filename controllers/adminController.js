@@ -43,6 +43,39 @@ exports.updateUser = async (req, res) => {
 };
 
 
+exports.getAllBlockedUsers = async (req, res) => {
+  try {
+    const users = await User.find({ blocked: true });
+    res.status(200).json(users);
+  } catch (err) {
+    console.log("no user");
+    res.status(400).json({ error: err.message });
+  }
+};
+
+
+
+exports.updateUserBlockedStatus = async (req, res) => {
+  const { id } = req.params;
+  const { blocked } = req.body;
+
+  try {
+    const user = await User.findById({ _id: id });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.blocked = blocked;
+    await user.save();
+
+    res.status(200).json({ success: true, message: `User ${blocked ? 'blocked' : 'unblocked'} successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
 exports.addOrDeductWallet = async(req, res) => {
   const { userId, amount, transactionType, walletType, description } = req.body;
   console.log('body ==>', req.body);
@@ -278,15 +311,15 @@ exports.activateUser = async (req, res) => {
     // const all_users = await User.find()
     // let all_id=[];
 
-    for(let i=0;i<all_users.length;i++){
-      all_id.push(all_users[i]._id)
-    } 
-    console.log("alll_id--->",all_id);
+    // for(let i=0;i<all_users.length;i++){
+    //   all_id.push(all_users[i]._id)
+    // } 
+    // console.log("alll_id--->",all_id);
     
-    for(let i=0;i<all_id.length;i++){
-      await calculateMatchingIncome(all_id[i])
-      console.log("useraaaa===>",all_id[i])
-    }
+    // for(let i=0;i<all_id.length;i++){
+    //   await calculateMatchingIncome(all_id[i])
+    //   console.log("useraaaa===>",all_id[i])
+    // }
     await user.save();
 
     console.log(

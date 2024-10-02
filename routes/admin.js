@@ -34,12 +34,14 @@ router.post("/login", Adminlogin);
 router.post("/register", AdminRegister);
 router.get("/all-users", getAllUsers);
 router.get("/update-user", adminProtect, updateUserProfile);
+router.put("/user/:id", adminProtect, updateUserBlockedStatus);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);
 router.get("/all-active-users", adminProtect, getAllActiveUsers);
 router.get("/withdrawal-requests", adminProtect, getAllWithdrawRequests);
 router.put("/user-update/:id", adminProtect, updateUser);
 router.put("/add-deduct", adminProtect, addOrDeductWallet);
 router.get("/add-deduct-list", adminProtect, getAddDeductList);
+router.get("/all-blocked-users", adminProtect, getAllBlockedUsers);
 
 router.put(
   "/update-withdrawl-payment-status/:transactionId",
