@@ -36,8 +36,8 @@ exports.signupController = async (req, res) => {
         phone,
         password,
         walletAddress,
-        // referralCode: generateReferralCode(),
-        referralCode: walletAddress,
+        referralCode: generateReferralCode(),
+        // referralCode: walletAddress,
       });
 
       await newUser.save();
@@ -87,8 +87,8 @@ exports.signupController = async (req, res) => {
       email,
       phone,
       password,
-      // referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
-      referralCode: walletAddress, // Implement a function to generate a unique referral code
+      referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
+      // referralCode: walletAddress, // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
       walletAddress
     });
