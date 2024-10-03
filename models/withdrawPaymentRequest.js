@@ -6,37 +6,26 @@ const withdrawPaymentSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  walletAddress:{
+    type:String,
+    required:true
+  },
   amount: {
     type: Number,
     required: true,
   },
-
-  accountNumber:{
+  referralCode:{
     type:String,
     required:true
   },
-  userCode:{type:String},
-  ifscCode:{
-    type:String,
-    required:true
-  },
-  userName:{
-    type:String,
-    required:true
-  },
-  
   createdAt: {
     type: Date,
     default: Date.now,
   },
   paymentStatus:{
     type:String,
-    default: "Procesing",
+    default: "Processing",
   },
-  orderId: {
-    type: String
-  },
-  type:{ type: String}
 });
 
 module.exports = mongoose.model('WithdrawPaymentRequest', withdrawPaymentSchema);
