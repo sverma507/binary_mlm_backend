@@ -11,6 +11,31 @@ const BotLevelIncome = require("../models/botLevelIncome");
 const BotPurchased = require("../models/botIncome");
 ; // Adjust the path as necessary
 
+
+
+ exports.update_withdrawl_request_status =async (req, res) => {
+  const { id } = req.params;
+  const { paymentStatus } = req.body;
+
+  try {
+    const request = await WithdrawRequest.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: 'Withdrawal request not found.' });
+    }
+
+    // Update the status
+    request.paymentStatus = paymentStatus;
+    await request.save();
+
+    return res.status(200).json({ message: 'Withdrawal request status updated successfully.', request });
+  } catch (error) {
+    console.error('Error updating withdrawal request status:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
+
 // Controller to fetch all withdrawal requests
  exports.getAllWithdrawRequests = async (req, res) => {
   try {
