@@ -9,6 +9,23 @@ const ActivationTransaction = require('../models/activationTransaction');
 const AddTransaction = require('../models/addAndDeduct')
 const BotLevelIncome = require("../models/botLevelIncome");
 const BotPurchased = require("../models/botIncome");
+; // Adjust the path as necessary
+
+// Controller to fetch all withdrawal requests
+ exports.getAllWithdrawRequests = async (req, res) => {
+  try {
+    const withdrawRequests = await WithdrawPaymentRequest.find()
+      .populate('userId', 'username email') // Adjust according to your User model's fields
+      .sort({ createdAt: -1 }); // Sort by createdAt in descending order
+
+    return res.status(200).json(withdrawRequests);
+  } catch (error) {
+    console.error('Error fetching withdrawal requests:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
 
 
 exports.updateUser = async (req, res) => {

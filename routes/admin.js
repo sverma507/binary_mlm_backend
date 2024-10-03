@@ -16,7 +16,7 @@ const {
   addOrDeductWallet,
   getActivationList,
   getDownlineUsers,
-  getAddDeductList
+  getAddDeductList,
 } = require("../controllers/adminController");
 const { adminProtect } = require("../middleware/auth");
 const {
@@ -37,7 +37,7 @@ router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);
 router.get("/all-active-users", adminProtect, getAllActiveUsers);
-router.get("/withdrawal-requests", adminProtect, getAllWithdrawRequests);
+router.get("/withdraw-requests", adminProtect, getAllWithdrawRequests);
 router.put("/user-update/:id", adminProtect, updateUser);
 router.put("/add-deduct", adminProtect, addOrDeductWallet);
 router.get("/add-deduct-list", adminProtect, getAddDeductList);

@@ -13,7 +13,9 @@ const {
   // PurchaseBull,
   updateToZero,
   Recharge_to_Trading,
-  BotLevelIncome
+  BotLevelIncome,
+  withdrawlRequest,
+  getUserWithdrawalRequests
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -31,6 +33,8 @@ router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
 router.post("/purchase-bull/:id", protect, PurchaseBull);
 router.get("/bot-level-income/:userId", protect, BotLevelIncome);
 router.post("/recharge-to-trading/:userId", protect, Recharge_to_Trading);
+router.post("/withdrawl-request/:userId", protect, withdrawlRequest);
+router.get("/withdrawal-requests/:userId", protect, getUserWithdrawalRequests);
 router.get("/profile/:id", protect, getUserProfile);
 router.get("/withdraw-transactions/:id", protect, getWithdrawPaymentRequest);
 router.get("/team-members/:id/:level", protect, myTeamMembers);
