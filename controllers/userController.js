@@ -3,7 +3,7 @@ const Product = require("../models/addPackage");
 const WithdrawPaymentRequest = require("../models/withdrawPaymentRequest");
 const BotPurchased = require("../models/botIncome");
 const BotLevelIncome = require("../models/botLevelIncome");
-
+const TradingIncome = require('../models/tradingIncome');
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
@@ -187,6 +187,62 @@ const generateReferralCode = () => {
 
 
 
+// controllers/tradingIncomeController.js
+
+// Function to update the trading wallet daily
+
+
+exports.updateTradingIncome = async () => {
+  console.log("called===>");
+  
+  try {
+    const users = await User.find({
+      isActive: true,
+      tradingWallet: { $gt: 0 },
+    });
+
+    users.forEach(async (user) => {
+      const { tradingWallet, tradingIncome, earningWallet, referralCode, _id } = user;
+      
+      // Calculate 210% of the original trading wallet amount
+      const maxIncome = tradingWallet * 2.1;
+
+      // Check if the user has reached 210% of the initial trading wallet value
+      if (tradingIncome < maxIncome) {
+        // Calculate 5% of the current trading wallet
+        const incomeToAdd = tradingWallet * 0.05;
+
+        // Ensure we don't add more than the remaining amount to reach 210%
+        // const finalIncomeToAdd = Math.min(incomeToAdd, maxIncome - tradingIncome);
+
+        // Update user earnings and trading income
+        user.earningWallet += incomeToAdd;
+        user.tradingIncome += incomeToAdd;
+
+        // Save the updated user
+        await user.save();
+
+        // Log the transaction in the database
+        const transaction = new TradingIncome({
+          userId: _id,
+          referralCode: referralCode,
+          amount: incomeToAdd,
+          tradingWallet: tradingWallet
+        });
+
+        await transaction.save();
+      } else {
+        // If the user has reached their limit, set tradingWallet to 0
+        user.tradingWallet = 0;
+        await user.save();
+      }
+    });
+
+    console.log('Daily trading income update and transaction logging completed.');
+  } catch (error) {
+    console.error('Error updating trading income or logging transaction:', error);
+  }
+};
 
 
 

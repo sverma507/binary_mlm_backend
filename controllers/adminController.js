@@ -9,7 +9,51 @@ const ActivationTransaction = require('../models/activationTransaction');
 const AddTransaction = require('../models/addAndDeduct')
 const BotLevelIncome = require("../models/botLevelIncome");
 const BotPurchased = require("../models/botIncome");
+const TradingIncome =require("../models/tradingIncome");
 ; // Adjust the path as necessary
+
+exports.getAllTradingTransactions = async (req, res) => {
+  try {
+    // Fetch all transactions, populate user details if needed
+    const transactions = await TradingIncome.find()// Modify as per the fields you want to show
+
+    // Respond with the transactions
+    res.status(200).json({
+      success: true,
+      data: transactions
+    });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching transactions',
+      error: error.message
+    });
+  }
+};
+
+ exports.update_withdrawl_request_status =async (req, res) => {
+  const { id } = req.params;
+  const { paymentStatus } = req.body;
+
+  try {
+    const request = await WithdrawRequest.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: 'Withdrawal request not found.' });
+    }
+
+    // Update the status
+    request.paymentStatus = paymentStatus;
+    await request.save();
+
+    return res.status(200).json({ message: 'Withdrawal request status updated successfully.', request });
+  } catch (error) {
+    console.error('Error updating withdrawal request status:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
 
 // Controller to fetch all withdrawal requests
  exports.getAllWithdrawRequests = async (req, res) => {

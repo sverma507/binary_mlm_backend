@@ -17,6 +17,8 @@ const {
   getActivationList,
   getDownlineUsers,
   getAddDeductList,
+  update_withdrawl_request_status,
+  getAllTradingTransactions
 } = require("../controllers/adminController");
 const { adminProtect } = require("../middleware/auth");
 const {
@@ -38,12 +40,14 @@ router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);
 router.get("/all-active-users", adminProtect, getAllActiveUsers);
-router.get("/withdrawl-requests", adminProtect, getAllWithdrawRequests);
+router.get("/withdraw-requests", adminProtect, getAllWithdrawRequests);
+router.get("/update-withdraw-requests/:id", adminProtect, update_withdrawl_request_status);
 router.put("/user-update/:id", adminProtect, updateUser);
 router.put("/add-deduct", adminProtect, addOrDeductWallet);
 router.get("/add-deduct-list", adminProtect, getAddDeductList);
 router.put("/change-password", adminProtect, changePassword);
 router.get("/all-blocked-users", adminProtect, getAllBlockedUsers);
+router.get("/trading-transactions", adminProtect, getAllTradingTransactions);
 
 router.put(
   "/update-withdrawl-payment-status/:transactionId",
