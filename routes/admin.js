@@ -17,7 +17,8 @@ const {
   getActivationList,
   getDownlineUsers,
   getAddDeductList,
-  update_withdrawl_request_status
+  update_withdrawl_request_status,
+  getAllTradingTransactions
 } = require("../controllers/adminController");
 const { adminProtect } = require("../middleware/auth");
 const {
@@ -44,6 +45,7 @@ router.put("/user-update/:id", adminProtect, updateUser);
 router.put("/add-deduct", adminProtect, addOrDeductWallet);
 router.get("/add-deduct-list", adminProtect, getAddDeductList);
 router.get("/all-blocked-users", adminProtect, getAllBlockedUsers);
+router.get("/trading-transactions", adminProtect, getAllTradingTransactions);
 
 router.put(
   "/update-withdrawl-payment-status/:transactionId",

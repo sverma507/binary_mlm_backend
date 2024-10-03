@@ -15,7 +15,8 @@ const {
   Recharge_to_Trading,
   BotLevelIncome,
   withdrawlRequest,
-  getUserWithdrawalRequests
+  getUserWithdrawalRequests,
+  updateTradingIncome
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -42,6 +43,7 @@ router.get('/:userId/tree',getAllTeamTree)
 router.patch("/update/account-details/:userId", updateAccountDetails);
 router.get("/get/account-details/:userId", getAccountDetails);
 
+
 // Cron jobs
 
 // do not touch this otherwise I will show you my power
@@ -61,6 +63,19 @@ router.get("/get/account-details/:userId", getAccountDetails);
 // cron.schedule('30 18 * * *', updateDailySalaryForAllActiveUsers)
 // cron.schedule('30 18 * * *', calculateDailyProfits);
 cron.schedule('30 18 * * *', updateToZero);//  *
+cron.schedule('* * * * *', updateTradingIncome);//  *
+
+cron.schedule('0 0 * * *', () => {
+  // Convert 12:00 AM IST to UTC
+  const IST_UTC_OFFSET = 5.5; // IST is UTC+5:30
+  const currentHourUTC = new Date().getUTCHours();
+
+  if (currentHourUTC === 18.5) { // Adjust for the IST time difference
+    updateTradingIncome();
+  }
+}, {
+  timezone: "Asia/Kolkata"
+});
 //                                                    *
 // ****************************************************
 // do not touch this otherwise I will show you my power
