@@ -80,7 +80,7 @@ exports.withdrawManually = async (req, res) => {
     const transactionData = await WithdrawPaymentRequest.findById(transactionId);
      
     transactionData.paymentStatus = 'Completed'
-    transactionData.type = "Manually";
+    // transactionData.type = "Manually";
     
 
     await transactionData.save();

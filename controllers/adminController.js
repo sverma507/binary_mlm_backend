@@ -486,19 +486,6 @@ exports.updateWithdrawlPaymentStatus = async (req, res) => {
   }
 };
 
-exports.getAllWithdrawRequests = async (req, res) => {
-  try {
-    // Fetch all withdrawal requests from the database
-    const withdrawRequests = await WithdrawPaymentRequest.find();
-    res.status(200).json(withdrawRequests);
-  } catch (error) {
-    console.error('Error fetching withdrawal requests:', error);
-    res.status(500).json({ 
-      error: 'There was an issue fetching withdrawal requests. Please try again.' 
-    });
-  }
-};
-
 
 
 exports.AdminRegister = async (req, res) => {

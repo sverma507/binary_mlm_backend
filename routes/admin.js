@@ -28,6 +28,7 @@ const {
 } = require("../controllers/productController");
 
 const { Adminlogin, AdminRegister } = require("../controllers/adminController");
+const { changePassword } = require("../controllers/authController");
 const router = express.Router();
 
 router.post("/login", Adminlogin);
@@ -37,10 +38,11 @@ router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);
 router.get("/all-active-users", adminProtect, getAllActiveUsers);
-router.get("/withdraw-requests", adminProtect, getAllWithdrawRequests);
+router.get("/withdrawl-requests", adminProtect, getAllWithdrawRequests);
 router.put("/user-update/:id", adminProtect, updateUser);
 router.put("/add-deduct", adminProtect, addOrDeductWallet);
 router.get("/add-deduct-list", adminProtect, getAddDeductList);
+router.put("/change-password", adminProtect, changePassword);
 router.get("/all-blocked-users", adminProtect, getAllBlockedUsers);
 
 router.put(
