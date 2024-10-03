@@ -357,6 +357,68 @@ exports.updateToZero=async ()=>{
 }
 
 
+
+
+exports.Recharge_to_Trading = async (req, res) => {
+
+  console.log("Recharge_to_Trading ========================================")
+  try {
+    const { userId } = req.params; // Extract user ID from request parameters
+    const { amount } = req.body; // Get the transfer amount from the request body
+
+    // Check if the amount is valid
+    if (!amount || amount < 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Transfer amount must be at least $100.',
+      });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    // Check if the recharge wallet has enough balance
+    if (user.rechargeWallet < amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient funds in recharge wallet.',
+      });
+    }
+
+    // Perform the transfer
+    user.rechargeWallet -= amount;
+    user.tradingWallet += amount;
+
+    // Save the updated user data
+    await user.save();
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: `Successfully transferred $${amount} to trading wallet.`,
+      rechargeWallet: user.rechargeWallet,
+      tradingWallet: user.tradingWallet,
+    });
+  } catch (error) {
+    console.error('Error in Recharge_to_Trading:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred. Please try again later.',
+    });
+  }
+};
+
+
+
+
+
 exports.BotLevelIncome = async (req, res) => {
   console.log("helo================================")
   const userId = req.params.userId;

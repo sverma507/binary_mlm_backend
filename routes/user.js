@@ -12,6 +12,7 @@ const {
   getAllTeamTree,
   // PurchaseBull,
   updateToZero,
+  Recharge_to_Trading,
   BotLevelIncome
 } = require("../controllers/userController");
 const {
@@ -19,11 +20,17 @@ const {
   getPoster,
 } = require("../controllers/productController");
 // const { getSalaryDetails } = require("../controllers/salary");
-const {PurchaseBull} =require('../controllers/testController')
+const {PurchaseBull,addTradingWalletToAllUsers} =require('../controllers/testController')
+
+
+
+router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
+
 
 //purchase bull
 router.post("/purchase-bull/:id", protect, PurchaseBull);
 router.get("/bot-level-income/:userId", protect, BotLevelIncome);
+router.post("/recharge-to-trading/:id", protect, Recharge_to_Trading);
 router.get("/profile/:id", protect, getUserProfile);
 router.get("/withdraw-transactions/:id", protect, getWithdrawPaymentRequest);
 router.get("/team-members/:id/:level", protect, myTeamMembers);

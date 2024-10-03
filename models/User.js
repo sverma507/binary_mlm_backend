@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   referredBy: { type: String },
   walletAddress: { type: String , required:true},
   leftChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  tradingWallet: { type: Number, default:0 },
+  // tradingWallet: { type: Number, default:0 },
   rightChild: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rankSalaryActivation: {
     type: [Boolean], 
@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema({
   earningWallet: { type: Number, default: 0 },  // Total amount in wallet
   rechargeWallet:{ type: Number, default: 0 },
   matchingWallet:{ type: Number, default: 0 },
+  tradingWallet:{ type: Number, default: 0 },
   directIncome: { type: Number, default: 0 },  // Direct bot income
   matchingIncome: { type: Number, default: 0 },  // Matching income
   salaryIncome: { type: Number, default: 0 },  // Salary income
