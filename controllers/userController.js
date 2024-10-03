@@ -361,7 +361,7 @@ exports.updateToZero=async ()=>{
 
 exports.Recharge_to_Trading = async (req, res) => {
 
-  console.log("Recharge_to_Trading ========================================")
+  // console.log("Recharge_to_Trading ========================================")
   try {
     const { userId } = req.params; // Extract user ID from request parameters
     const { amount } = req.body; // Get the transfer amount from the request body
