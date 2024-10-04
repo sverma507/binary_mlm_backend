@@ -507,6 +507,36 @@ console.log("bolt level -id =>",userId)
 
 
 
+exports.UserTradingIncome = async (req, res) => {
+  console.log("helo================================")
+  const userId = req.params.userId;
+console.log("bolt level -id =>",userId)
+  try {
+    const result = await TradingIncome.find({ userId: userId });
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No trading income found for the specified user."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error during retrieving trading income:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching bot level income. Please try again later."
+    });
+  }
+};
+
+
+
 
 
 exports.withdrawlRequest = async (req, res) => {

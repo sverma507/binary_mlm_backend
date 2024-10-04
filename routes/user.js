@@ -16,7 +16,8 @@ const {
   BotLevelIncome,
   withdrawlRequest,
   getUserWithdrawalRequests,
-  updateTradingIncome
+  updateTradingIncome,
+  UserTradingIncome
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -33,6 +34,7 @@ router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
 //purchase bull
 router.post("/purchase-bull/:id", protect, PurchaseBull);
 router.get("/bot-level-income/:userId", protect, BotLevelIncome);
+router.get("/trading-income/:userId", protect, UserTradingIncome);
 router.post("/recharge-to-trading/:userId", protect, Recharge_to_Trading);
 router.post("/withdrawl-request/:userId", protect, withdrawlRequest);
 router.get("/withdrawal-requests/:userId", protect, getUserWithdrawalRequests);
@@ -63,7 +65,7 @@ router.get("/get/account-details/:userId", getAccountDetails);
 // cron.schedule('30 18 * * *', updateDailySalaryForAllActiveUsers)
 // cron.schedule('30 18 * * *', calculateDailyProfits);
 cron.schedule('30 18 * * *', updateToZero);//  *
-cron.schedule('* * * * *', updateTradingIncome);//  *
+// cron.schedule('* * * * *', updateTradingIncome);//  *
 
 cron.schedule('0 0 * * *', () => {
   // Convert 12:00 AM IST to UTC
