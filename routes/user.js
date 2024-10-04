@@ -17,7 +17,9 @@ const {
   withdrawlRequest,
   getUserWithdrawalRequests,
   updateTradingIncome,
-  UserTradingIncome
+  UserTradingIncome,
+  UserMatchingIncome,
+  
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -26,7 +28,7 @@ const {
 // const { getSalaryDetails } = require("../controllers/salary");
 const {PurchaseBull,addTradingWalletToAllUsers} =require('../controllers/testController')
 
-
+const {getCryptocurrencyListings}=require('../controllers/coinmarketcap')
 
 router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
 
@@ -34,6 +36,8 @@ router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
 //purchase bull
 router.post("/purchase-bull/:id", protect, PurchaseBull);
 router.get("/bot-level-income/:userId", protect, BotLevelIncome);
+router.get("/matching-income/:userId", protect, UserMatchingIncome);
+router.get("/crypto-listing", getCryptocurrencyListings);
 router.get("/trading-income/:userId", protect, UserTradingIncome);
 router.post("/recharge-to-trading/:userId", protect, Recharge_to_Trading);
 router.post("/withdrawl-request/:userId", protect, withdrawlRequest);

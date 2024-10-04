@@ -18,7 +18,9 @@ const {
   getDownlineUsers,
   getAddDeductList,
   update_withdrawl_request_status,
-  getAllTradingTransactions
+  getAllTradingTransactions,
+  getMatchingIncome,
+  getLevelIncome
 } = require("../controllers/adminController");
 const { adminProtect } = require("../middleware/auth");
 const {
@@ -38,6 +40,8 @@ router.post("/register", AdminRegister);
 router.get("/all-users", getAllUsers);
 router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
+router.get("/matching-income", adminProtect, getMatchingIncome);
+router.get("/level-income", adminProtect, getLevelIncome);
 router.get("/unpaid-users", adminProtect, getAllUnPaidUsers);
 router.get("/all-active-users", adminProtect, getAllActiveUsers);
 router.get("/withdraw-requests", adminProtect, getAllWithdrawRequests);

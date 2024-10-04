@@ -4,6 +4,7 @@ const WithdrawPaymentRequest = require("../models/withdrawPaymentRequest");
 const BotPurchased = require("../models/botIncome");
 const BotLevelIncome = require("../models/botLevelIncome");
 const TradingIncome = require('../models/tradingIncome');
+const MatchingIncome = require('../models/matchingIncome');
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
@@ -116,6 +117,17 @@ exports.signupController = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 exports.getAllTeamTree = async (req, res) => {
   const userId = req.params.userId;
@@ -269,6 +281,9 @@ const countActiveUsersInSubtree = async (userId, count = 0) => {
 };
 
 // Function to calculate matching income
+ // Import the MatchingIncome model
+// Assuming you have the User model imported
+
 const calculateMatchingIncome = async (parentId) => {
   try {
     const user = await User.findById(parentId);
@@ -276,119 +291,50 @@ const calculateMatchingIncome = async (parentId) => {
       throw new Error('User not found');
     }
 
-    if (user.matchingIncome>300) {
-      console.log("matching Income 300")
-      return
+    if (user.matchingIncome > 300) {
+      console.log("Matching Income exceeds $300");
+      return;
     }
 
     // Count active users on both the left and right sides of the tree
     const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
     const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
 
-    console.log("leftActiveCount",leftActiveCount);
-    console.log("rightActiveCount",rightActiveCount);
-    
-    // Check for 2:1 or 1:2 ratio
-    const isMatchingPair = false 
-     if(!user.hasReceivedFirstMatchingIncome){
-      isMatchingPair=(leftActiveCount >= 2 && rightActiveCount >= 1) ||
-      (leftActiveCount >= 1 && rightActiveCount >= 2);
-      
-      if(isMatchingPair){
-        user.hasReceivedFirstMatchingIncome=true;
-      }
+    console.log("Left active count:", leftActiveCount);
+    console.log("Right active count:", rightActiveCount);
 
-     }else{
-      isMatchingPair=(leftActiveCount == rightActiveCount);
-      if(isMatchingPair){
-        if(leftActiveCount == 5){
-           user.rankSalaryActivation[0] = true;
-           user.rankSalaryStartDate[0] = Date.now();
-           await user.save();
-        }else if(leftActiveCount == 15){
-          user.rankSalaryActivation[1] = true;
-          user.rankSalaryActivation[0] = false;
-          user.rankSalaryStartDate[1] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 40){
-          user.rankSalaryActivation[2] = true;
-          user.rankSalaryActivation[1] = false;
-          user.rankSalaryStartDate[2] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 90){
-          user.rankSalaryActivation[3] = true;
-          user.rankSalaryActivation[2] = false;
-          user.rankSalaryStartDate[3] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 190){
-          user.rankSalaryActivation[4] = true;
-          user.rankSalaryActivation[3] = false;
-          user.rankSalaryStartDate[4] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 440){
-          user.rankSalaryActivation[5] = true;
-          user.rankSalaryActivation[4] = false;
-          user.rankSalaryStartDate[5] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 940){
-          user.rankSalaryActivation[6] = true;
-          user.rankSalaryActivation[5] = false;
-          user.rankSalaryStartDate[6] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 1940){
-          user.rankSalaryActivation[7] = true;
-          user.rankSalaryActivation[6] = false;
-          user.rankSalaryStartDate[7] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 4440){
-          user.rankSalaryActivation[8] = true;
-          user.rankSalaryActivation[7] = false;
-          user.rankSalaryStartDate[8] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 9440){
-          user.rankSalaryActivation[9] = true;
-          user.rankSalaryActivation[8] = false;
-          user.rankSalaryStartDate[9] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 16940){
-          user.rankSalaryActivation[10] = true;
-          user.rankSalaryActivation[9] = false;
-          user.rankSalaryStartDate[10] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 26940){
-          user.rankSalaryActivation[11] = true;
-          user.rankSalaryActivation[10] = false;
-          user.rankSalaryStartDate[11] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 41940){
-          user.rankSalaryActivation[12] = true;
-          user.rankSalaryActivation[11] = false;
-          user.rankSalaryStartDate[12] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 66940){
-          user.rankSalaryActivation[13] = true;
-          user.rankSalaryActivation[12] = false;
-          user.rankSalaryStartDate[13] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 116940){
-          user.rankSalaryActivation[14] = true;
-          user.rankSalaryActivation[13] = false;
-          user.rankSalaryStartDate[14] = Date.now();
-          await user.save();
-        }else if(leftActiveCount == 216940){
-          user.rankSalaryActivation[15] = true;
-          user.rankSalaryActivation[14] = false;
-          user.rankSalaryStartDate[15] = Date.now();
-          await user.save();
-        }
+    // Check for matching pairs (2:1 or 1:2)
+    let isMatchingPair = false;
+    if (!user.hasReceivedFirstMatchingIncome) {
+      isMatchingPair = (leftActiveCount >= 2 && rightActiveCount >= 1) ||
+        (leftActiveCount >= 1 && rightActiveCount >= 2);
+      
+      if (isMatchingPair) {
+        user.hasReceivedFirstMatchingIncome = true;
       }
-     }
+    } else {
+      isMatchingPair = (leftActiveCount === rightActiveCount);
+      if (isMatchingPair) {
+        // Update rank salary activation based on active counts (as per your logic)
+        updateRankSalary(user, leftActiveCount);
+      }
+    }
 
     if (isMatchingPair) {
       // Update the user's matching income
-      user.matchingIncome += 5;  // Add $5 to matching income
+      const matchingIncomeAmount = 5;  // Example: $5 for each matching pair
+      user.matchingIncome += matchingIncomeAmount;
       user.hasReceivedFirstMatchingIncome = false;
       await user.save();
+
+      // Store the matching income in the MatchingIncome collection
+      const matchingIncomeRecord = new MatchingIncome({
+        user: user._id,
+        referralCode: user.referralCode,
+        amount: matchingIncomeAmount,
+      });
+
+      await matchingIncomeRecord.save(); // Save the record to the database
 
       console.log(`Matching income updated for user: ${user.email}, new income: $${user.matchingIncome}`);
     } else {
@@ -401,6 +347,24 @@ const calculateMatchingIncome = async (parentId) => {
     throw new Error('Error in calculating matching income');
   }
 };
+
+// Helper function to update rank salary based on active counts
+const updateRankSalary = async (user, leftActiveCount) => {
+  const rankThresholds = [5, 15, 40, 90, 190, 440, 940, 1940, 4440, 9440, 16940, 26940, 41940, 66940, 116940, 216940];
+  
+  for (let i = 0; i < rankThresholds.length; i++) {
+    if (leftActiveCount === rankThresholds[i]) {
+      user.rankSalaryActivation[i] = true;
+      user.rankSalaryStartDate[i] = Date.now();
+      if (i > 0) {
+        user.rankSalaryActivation[i - 1] = false; // Deactivate the previous rank
+      }
+      await user.save();
+      break;
+    }
+  }
+};
+
 
 
 exports.updateToZero=async ()=>{
@@ -502,6 +466,40 @@ console.log("bolt level -id =>",userId)
     });
   }
 };
+
+
+
+
+
+
+exports.UserMatchingIncome = async (req, res) => {
+  console.log("helo================================")
+  const userId = req.params.userId;
+console.log("bolt level -id =>",userId)
+  try {
+    const result = await MatchingIncome.find({ user: userId });
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No trading income found for the specified user."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error during retrieving trading income:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching bot level income. Please try again later."
+    });
+  }
+};
+
 
 
 
