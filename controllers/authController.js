@@ -138,54 +138,59 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
 
-  console.log("data===>",req.body);
-  
+
+exports.login = async (req, res) => {
+  console.log("Login request data:", req.body);
+
   try {
-    const { phone, email, password } = req.body;
-    const user = await User.findOne(phone ? { phone } : { email });
+    const { walletAddress } = req.body;
+
+    if (!walletAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'Wallet address is required.',
+      });
+    }
+
+    // Find user by wallet address
+    const user = await User.findOne({ walletAddress });
 
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid credentials. User not found.',
-      });
-    }
-
-    // Validate password
-    if (password.trim() !== user.password) {  // Compare original password
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid credentials. Incorrect password.',
+        message: 'User not found. Please register.',
       });
     }
 
     if (user.blocked) {
       return res.status(400).json({
         success: false,
-        message: 'You Are Blocked By Admin. Contact Admin.',
+        message: 'You are blocked by the admin. Contact admin for assistance.',
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    // Generate JWT token
+    const token = jwt.sign({ user }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Login successful!',
-      user :user,
+      user,
       token,
     });
+
   } catch (err) {
     console.log("Login error:", err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'An error occurred during login. Please try again later.',
     });
   }
 };
+
 
 exports.adminLogin = async (req, res) => {
   try {

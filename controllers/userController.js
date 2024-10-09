@@ -8,7 +8,7 @@ const MatchingIncome = require('../models/matchingIncome');
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
-  const { email, phone, password, referredBy, walletAddress, preferredSide } = req.body;
+  const { referredBy, walletAddress, preferredSide } = req.body;
 
   console.log("wallet===>", req.body.walletAddress);
   console.log("Type:", typeof walletAddress);   
@@ -16,15 +16,12 @@ exports.signupController = async (req, res) => {
 
   try {
     // Check if the email already exists in the database
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ message: "Email already exists." });
-    }
+   
 
     // Check if the phone number already exists in the database
-    const existingPhone = await User.findOne({ phone });
-    if (existingPhone) {
-      return res.status(400).json({ message: "Phone number already exists." });
+    const existingWallet = await User.findOne({ walletAddress });
+    if (existingWallet) {
+      return res.status(400).json({ message: "Wallet Address  already exists." });
     }
 
     // 1. Check if this is the first user (no users in the system)
@@ -34,9 +31,6 @@ exports.signupController = async (req, res) => {
 
       // If this is the first user, no need for referredBy or preferredSide
       const newUser = new User({
-        email,
-        phone,
-        password,
         walletAddress,
         referralCode: generateReferralCode(),
         // referralCode: walletAddress,
@@ -86,9 +80,6 @@ exports.signupController = async (req, res) => {
 
     // 7. Create the new user
     const newUser = new User({
-      email,
-      phone,
-      password,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
       // referralCode: walletAddress, // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
