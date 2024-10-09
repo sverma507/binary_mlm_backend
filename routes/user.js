@@ -19,7 +19,7 @@ const {
   updateTradingIncome,
   UserTradingIncome,
   UserMatchingIncome,
-  
+  distributeRankIncome,
 } = require("../controllers/userController");
 const {
   getAllProducts,
@@ -78,6 +78,7 @@ cron.schedule('0 0 * * *', () => {
 
   if (currentHourUTC === 18.5) { // Adjust for the IST time difference
     updateTradingIncome();
+    distributeRankIncome()
   }
 }, {
   timezone: "Asia/Kolkata"

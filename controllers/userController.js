@@ -358,6 +358,58 @@ const updateRankSalary = async (user, leftActiveCount) => {
 
 
 
+
+
+ // Adjust the path as necessary
+
+// Define the rank income amounts
+const rankIncomeAmounts = [5, 10, 20, 30, 60, 150, 300, 600, 1500, 3000, 4500, 6000, 9000, 15000, 30000, 60000];
+
+// Function to distribute rank income to users
+ exports.distributeRankIncome = async () => {
+  try {
+    // Get current date
+    const currentDate = new Date();
+    
+    // Find all users with rank income activated
+    const users = await User.find({ rankSalaryActivation: { $elemMatch: { $eq: true } } });
+
+    // Iterate through users to distribute rank income
+    for (const user of users) {
+      // Check if the user has rank income activated
+      const rankIndex = user.rankSalaryActivation.findIndex(active => active === true);
+      if (rankIndex !== -1) {
+        // Calculate the user's rank income amount
+        const rankIncomeAmount = rankIncomeAmounts[rankIndex];
+        
+        // Calculate the user's rank salary start date
+        const startDate = user.rankSalaryStartDate[rankIndex];
+        
+        // Calculate the number of weeks since the rank salary start date
+        const weeksSinceStart = Math.floor((currentDate - new Date(startDate)) / (1000 * 60 * 60 * 24 * 7));
+
+        // Ensure we only credit for up to 5 weeks
+        const weeksToCredit = Math.min(weeksSinceStart, 5);
+        const totalCredit = weeksToCredit * rankIncomeAmount;
+
+        // Update the user's earning wallet
+        if (totalCredit > 0) {
+          user.earningWallet += totalCredit; // Credit the total amount to the user's earning wallet
+          await user.save(); // Save the updated user document
+          console.log(`Credited ${totalCredit} to user ${user._id} earning wallet.`);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error distributing rank income:', error);
+  }
+};
+
+
+
+
+
+
 exports.updateToZero=async ()=>{
   const all_users=await User.find();
   for(let tempuser in all_users){
@@ -491,6 +543,39 @@ console.log("bolt level -id =>",userId)
   }
 };
 
+
+
+
+
+
+
+// exports.UserRankIncome = async (req, res) => {
+//   console.log("helo================================")
+//   const userId = req.params.userId;
+// console.log("bolt level -id =>",userId)
+//   try {
+//     const result = await MatchingIncome.findOne({ _id: userId });
+
+//     if (!result || result.length === 0) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No trading income found for the specified user."
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       data: result
+//     });
+
+//   } catch (error) {
+//     console.error("Error during retrieving trading income:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "An error occurred while fetching bot level income. Please try again later."
+//     });
+//   }
+// };
 
 
 

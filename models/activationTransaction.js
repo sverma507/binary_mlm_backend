@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const activationTransactionSchema = new mongoose.Schema({
   user: { type: String },
-  mobileNumber: {type:String},
-  email: {type:String},
+  referralCode: {type:String},
   activateBy: { type:String },
 }, { timestamps: true });
 

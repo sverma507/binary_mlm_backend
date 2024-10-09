@@ -476,8 +476,8 @@ exports.activateUser = async (req, res) => {
 
     const activation = new ActivationTransaction({
       user: user.referralCode,
-      email: user.email,
-      mobileNumber: user.phone,
+      referralCode: user.referralCode,
+      // mobileNumber: user.phone,
       activateBy: 'admin',
     });
 
