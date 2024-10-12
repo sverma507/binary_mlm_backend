@@ -19,7 +19,6 @@ app.use(cors({
   origin: 'https://www.utechtrading.com', // Allow both the production and local origins
   methods: 'GET,POST,PUT,DELETE,OPTIONS',
   credentials: true, // This allows credentials such as cookies to be sent
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
 
