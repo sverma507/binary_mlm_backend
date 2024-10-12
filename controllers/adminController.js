@@ -204,13 +204,13 @@ exports.updateUserBlockedStatus = async (req, res) => {
 };
 
 
-exports.addOrDeductWallet = async(req, res) => {
+exports.addOrDeductWallet = async (req, res) => {
   const { userId, amount, transactionType, walletType, description } = req.body;
   console.log('body ==>', req.body);
-  
+
   try {
     const user = await User.findOne({ referralCode: userId });
-    
+
     if (!user) {
       console.log('No user found');
       return res.status(404).json({ error: 'User not found' });
@@ -218,26 +218,35 @@ exports.addOrDeductWallet = async(req, res) => {
 
     console.log('user ==>', user);
 
+    // Handle adding or deducting amounts based on wallet type
     if (transactionType === 'add') {
       if (walletType === 'r-wallet') {
         user.rechargeWallet += Number(amount);
-      } else {
+      } else if (walletType === 'e-wallet') {
         user.earningWallet += Number(amount);
         user.totalEarning += Number(amount);
+      } else if (walletType === 'trading-wallet') {
+        user.tradingWallet += Number(amount); // Add amount to tradingWallet
       }
-    } else {
+    } else if (transactionType === 'deduct') {
       if (walletType === 'r-wallet') {
         user.rechargeWallet -= Number(amount);
-      } else {
+      } else if (walletType === 'e-wallet') {
         user.earningWallet -= Number(amount);
+      } else if (walletType === 'trading-wallet') {
+        user.tradingWallet -= Number(amount); // Deduct amount from tradingWallet
       }
+    } else {
+      return res.status(400).json({ error: 'Invalid transaction type' });
     }
 
-    console.log("userWallet ==>", user);
+    console.log("Updated user wallet ==>", user);
     console.log(`user.id => ${user._id}, amount => ${amount}, type => ${transactionType}`);
 
+    // Save the updated user wallet
     await user.save();
 
+    // Log the transaction
     const transaction = new AddTransaction({
       user: user._id,
       userCode: user.referralCode,
@@ -246,14 +255,24 @@ exports.addOrDeductWallet = async(req, res) => {
       description,
     });
 
+
     await transaction.save();
-    res.status(200).json(user);
+
+    const tradetransaction = new TradingIncome({
+      userId: _id,
+      referralCode: referralCode,
+      amount: incomeToAdd,
+      tradingWallet: tradingWallet
+    });
+    await tradetransaction.save();
     
+    res.status(200).json(user);
   } catch (err) {
     console.error("Error occurred:", err.message);
     res.status(400).json({ error: err.message });
   }
-}
+};
+
 
 
 const countActiveUsersInSubtree = async (userId, count = 0) => {
@@ -445,7 +464,7 @@ exports.activateUser = async (req, res) => {
       const profit = (60 * profitDistribution[level].percentage) / 100;
 
       // Add the profit to the upline's earning wallet
-      uplineUser.earningWallet += profit;
+      uplineUser.bullWallet += profit;
 
       const newBotLevelIncome = new BotLevelIncome({
         user: uplineUser._id,

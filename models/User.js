@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  // name: { type: String, required: true },
-  // email: { type: String, unique: true, required: true },
+  userName: { type: String, required: true },
+  email: { type: String, unique: true, required: true },
+  phone: { type: String, required:true },
   // password: { type: String, required: true },
-  // phone: { type: String, required:true },
   referralCode: { type: String, unique: true},
   referredBy: { type: String },
   walletAddress: { type: String , required:true},
@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema({
   rechargeWallet:{ type: Number, default: 0 },
   matchingWallet:{ type: Number, default: 0 },
   tradingWallet:{ type: Number, default: 0 },
+  tradingWithdrawlCount:{ type: Number, default: 0 },
+  bullWallet:{ type: Number, default: 0 },
+  bullWithdrawlCount:{ type: Number, default: 0 },
   directIncome: { type: Number, default: 0 },  // Direct bot income
   matchingIncome: { type: Number, default: 0 },  // Matching income
   salaryIncome: { type: Number, default: 0 },  // Salary income

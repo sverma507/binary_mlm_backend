@@ -6,6 +6,10 @@ const withdrawPaymentSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  walletType:{
+    type:String,
+    required:true
+  },
   walletAddress:{
     type:String,
     required:true

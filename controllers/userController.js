@@ -8,7 +8,7 @@ const MatchingIncome = require('../models/matchingIncome');
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
-  const { referredBy, walletAddress, preferredSide } = req.body;
+  const {userName, email, phone, referredBy, walletAddress, preferredSide } = req.body;
 
   console.log("wallet===>", req.body.walletAddress);
   console.log("Type:", typeof walletAddress);   
@@ -16,7 +16,20 @@ exports.signupController = async (req, res) => {
 
   try {
     // Check if the email already exists in the database
-   
+    if(!userName||!email||!phone){
+      return res.status(400).json({ message: "Fill All The Fields" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email Address  already exists." });
+    }
+
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: "Phone Number  already exists." });
+    }
+
 
     // Check if the phone number already exists in the database
     const existingWallet = await User.findOne({ walletAddress });
@@ -29,8 +42,13 @@ exports.signupController = async (req, res) => {
     if (userCount === 0) {
       console.log("wallet inside if ===>", req.body.walletAddress);
 
+      
+
       // If this is the first user, no need for referredBy or preferredSide
       const newUser = new User({
+        userName,
+        email,
+        phone,
         walletAddress,
         referralCode: generateReferralCode(),
         // referralCode: walletAddress,
@@ -80,6 +98,9 @@ exports.signupController = async (req, res) => {
 
     // 7. Create the new user
     const newUser = new User({
+      userName,
+      email,
+      phone,
       referralCode: generateReferralCode(), // Implement a function to generate a unique referral code
       // referralCode: walletAddress, // Implement a function to generate a unique referral code
       referredBy: targetParent.referralCode,
@@ -219,7 +240,7 @@ exports.updateTradingIncome = async () => {
         // const finalIncomeToAdd = Math.min(incomeToAdd, maxIncome - tradingIncome);
 
         // Update user earnings and trading income
-        user.earningWallet += incomeToAdd;
+        user.tradingWallet += incomeToAdd;
         user.tradingIncome += incomeToAdd;
 
         // Save the updated user
@@ -611,51 +632,103 @@ console.log("bolt level -id =>",userId)
 
 
 
-
+const moment = require('moment'); // For date manipulation
 
 exports.withdrawlRequest = async (req, res) => {
   const userId = req.params.userId;
-  const { amount} = req.body; // Get the withdrawal amount and other data from the request body
+  const { amount, walletType } = req.body; // Get the withdrawal amount and selected wallet type from the request body
 
   try {
     // Find the user by ID
     const user = await User.findById(userId);
-  
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // Check if the withdrawal amount is valid and within the user's wallet balance
+    // Check if the withdrawal amount is valid
     if (!amount || amount <= 0) {
       return res.status(400).json({ message: 'Please enter a valid amount.' });
     }
 
-    if (amount > user.earningWallet) {
-      return res.status(400).json({ message: 'Insufficient balance.' });
+    // Ensure withdrawals can only be made on Saturdays and Sundays
+    const currentDay = moment().day();
+    if (currentDay !== 6 && currentDay !== 0) { // 6 is Saturday, 0 is Sunday
+      return res.status(400).json({ message: 'Withdrawals are only allowed on Saturdays and Sundays.' });
     }
 
-    // Create a withdrawal request
+    // Check withdrawal frequency for tradingWallet (once a month)
+    if (walletType === 'tradingWallet') {
+      const lastTradingWithdrawal = await WithdrawPaymentRequest.findOne({ 
+        userId, 
+        walletType: 'tradingWallet',
+        paymentStatus: { $in: ['Processing', 'Completed'] } 
+      }).sort({ createdAt: -1 }); // Get the most recent request
+
+      if (lastTradingWithdrawal && moment().diff(moment(lastTradingWithdrawal.createdAt), 'months') < 1) {
+        return res.status(400).json({ message: 'You can only withdraw from the Trading Wallet once per month.' });
+      }
+    }
+
+    // Check withdrawal frequency for bullWallet (once a week)
+    if (walletType === 'bullWallet') {
+      const lastBullWithdrawal = await WithdrawPaymentRequest.findOne({ 
+        userId, 
+        walletType: 'bullWallet',
+        paymentStatus: { $in: ['Processing', 'Completed'] }
+      }).sort({ createdAt: -1 }); // Get the most recent request
+
+      if (lastBullWithdrawal && moment().diff(moment(lastBullWithdrawal.createdAt), 'weeks') < 1) {
+        return res.status(400).json({ message: 'You can only withdraw from the Bull Wallet once per week.' });
+      }
+    }
+
+    // Determine the selected wallet's balance
+    let walletBalance;
+    if (walletType === 'earningWallet') {
+      walletBalance = user.earningWallet;
+    } else if (walletType === 'bullWallet') {
+      walletBalance = user.bullWallet;
+    } else if (walletType === 'tradingWallet') {
+      walletBalance = user.tradingWallet;
+    } else {
+      return res.status(400).json({ message: 'Invalid wallet type selected.' });
+    }
+
+    // Check if the user has sufficient balance in the selected wallet
+    if (amount > walletBalance) {
+      return res.status(400).json({ message: 'Insufficient balance in the selected wallet.' });
+    }
+
+    // Create a new withdrawal request
     const withdrawalRequest = new WithdrawPaymentRequest({
       userId,
-      walletAddress:user.walletAddress, // Include the wallet address from the request body
+      walletAddress: user.walletAddress, // Include the user's wallet address
       amount,
-      referralCode:user.referralCode, // Include the referral code from the request body
+      walletType, // Store the selected wallet type
+      referralCode: user.referralCode, // Include the user's referral code
       paymentStatus: 'Processing', // Set initial status to "Processing"
     });
 
     await withdrawalRequest.save();
 
-    // Deduct the amount from the user's earning wallet
-    user.earningWallet -= amount;
-    await user.save();
+    // Deduct the amount from the selected wallet
+    if (walletType === 'earningWallet') {
+      user.earningWallet -= amount;
+    } else if (walletType === 'bullWallet') {
+      user.bullWallet -= amount;
+    } else if (walletType === 'tradingWallet') {
+      user.tradingWallet -= amount;
+    }
+
+    await user.save(); // Save the updated user with the new wallet balance
 
     return res.status(200).json({ message: 'Withdrawal request submitted successfully.' });
   } catch (error) {
-    console.error('Error in user withdrawal request:', error);
+    console.error('Error in withdrawal request:', error);
     return res.status(500).json({ message: 'Failed to submit the withdrawal request.' });
   }
 };
-
 
 
 
@@ -840,15 +913,15 @@ exports.PurchaseBull = async (req, res) => {
     const all_users = await User.find()
     let all_id=[];
 
-    for(let i=0;i<all_users.length;i++){
-      all_id.push(all_users[i]._id)
-    } 
-    console.log("alll_id--->",all_id);
+    // for(let i=0;i<all_users.length;i++){
+    //   all_id.push(all_users[i]._id)
+    // } 
+    // console.log("alll_id--->",all_id);
     
-    for(let i=0;i<all_id.length;i++){
-      await calculateMatchingIncome(all_id[0])
-      console.log("useraaaa===>",all_id[i])
-    }
+    // for(let i=0;i<all_id.length;i++){
+    //   await calculateMatchingIncome(all_id[0])
+    //   console.log("useraaaa===>",all_id[i])
+    // }
     // MatchingIncome(userId);
     // const all_users = await User.find()
     // let all_id=[];
