@@ -16,12 +16,12 @@ dotenv.config();
 
 
 const app = express();
-app.use(cors({
-  origin: ['https://www.utechtrading.com', 'http://localhost:3000'], // Allow both the production and local origins
-  methods: 'GET,POST,PUT,DELETE,OPTIONS',
-  credentials: true, // This allows credentials such as cookies to be sent
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
-}));
+// app.use(cors({
+//   origin: ['https://www.utechtrading.com', 'http://localhost:3000'], // Allow both the production and local origins
+//   methods: 'GET,POST,PUT,DELETE,OPTIONS',
+//   credentials: true, // This allows credentials such as cookies to be sent
+//   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+// }));
 
 
 app.use(express.json());
