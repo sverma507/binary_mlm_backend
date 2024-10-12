@@ -30,6 +30,12 @@ app.use(fileUpload({
   tempFileDir: '/tmp/', // Directory where temp files will be stored
 }));
 
+
+
+
+app.options('*', cors()); // Include this line to respond to preflight requests
+
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
