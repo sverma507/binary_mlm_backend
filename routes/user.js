@@ -70,7 +70,7 @@ router.get("/get/account-details/:userId", getAccountDetails);
 // cron.schedule('30 18 * * *', calculateDailyProfits);
 cron.schedule('30 18 * * *', updateToZero);//  *
 // cron.schedule('* * * * *', updateTradingIncome);//  *
-const cron = require('node-cron');
+
 
 cron.schedule('0 0 * * *', () => {
   // Convert 12:00 AM IST to UTC
