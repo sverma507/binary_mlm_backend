@@ -70,19 +70,23 @@ router.get("/get/account-details/:userId", getAccountDetails);
 // cron.schedule('30 18 * * *', calculateDailyProfits);
 cron.schedule('30 18 * * *', updateToZero);//  *
 // cron.schedule('* * * * *', updateTradingIncome);//  *
+const cron = require('node-cron');
 
 cron.schedule('0 0 * * *', () => {
   // Convert 12:00 AM IST to UTC
   const IST_UTC_OFFSET = 5.5; // IST is UTC+5:30
   const currentHourUTC = new Date().getUTCHours();
+  const currentDayUTC = new Date().getUTCDay(); // Get the current day of the week (0-6)
 
-  if (currentHourUTC === 18.5) { // Adjust for the IST time difference
+  // Check if it's a weekday (Monday to Friday)
+  if (currentHourUTC === 18.5 && currentDayUTC !== 0 && currentDayUTC !== 6) { // 0 = Sunday, 6 = Saturday
     updateTradingIncome();
-    distributeRankIncome()
+    distributeRankIncome();
   }
 }, {
   timezone: "Asia/Kolkata"
 });
+
 //                                                    *
 // ****************************************************
 // do not touch this otherwise I will show you my power
