@@ -11,7 +11,168 @@ const BotLevelIncome = require("../models/botLevelIncome");
 const BotPurchased = require("../models/botIncome");
 const TradingIncome =require("../models/tradingIncome");
 const MatchingIncome = require('../models/matchingIncome'); 
-; // Adjust the path as necessary
+const Gift = require("../models/giftPopup");
+const TradingIncomePercent = require('../models/tradingIncomePercent');
+
+
+
+// Import your TradingIncomePercent model
+
+// Create or Update Trading Income Percent
+exports.createTradingIncomePercent = async (req, res) => {
+  const { percent } = req.body; // Capture the percent from the request body
+  const { id } = req.params; // Capture the ID if provided for updates
+
+  // Validate input
+  if (percent === undefined ) {
+    return res.status(400).json({ message: "Percent is required and must be a number" });
+  }
+
+  try {
+    let tradingIncome;
+
+    if (id) {
+      // If ID is provided, update the existing Trading Income Percent
+      tradingIncome = await TradingIncomePercent.findByIdAndUpdate(
+        id, // The ID of the Trading Income Percent to update
+        { percent }, // The updated value
+        { new: true, runValidators: true } // Return the updated document
+      );
+
+      if (!tradingIncome) {
+        return res.status(404).json({ message: "Trading income percent not found" });
+      }
+
+      return res.status(200).json({
+        message: "Trading income percent updated successfully",
+        tradingIncome,
+      });
+    } else {
+      // If no ID is provided, create a new Trading Income Percent
+      const newTradingIncomePercent = new TradingIncomePercent({
+        percent,
+      });
+
+      const savedTradingIncomePercent = await newTradingIncomePercent.save();
+
+      return res.status(201).json({
+        message: "Trading income percent created successfully",
+        tradingIncome: savedTradingIncomePercent,
+      });
+    }
+  } catch (error) {
+    console.error("Error creating or updating trading income percent:", error);
+    return res.status(500).json({ message: "Server error, please try again later." });
+  }
+};
+
+
+
+
+
+exports.getTradingIncomePercent = async (req, res) => {
+  try {
+    // Fetch all trading income percent records from the database
+    const tradingIncomePercents = await TradingIncomePercent.find();
+
+    if (!tradingIncomePercents.length) {
+      return res.status(404).json({ message: "No trading income percent records found." });
+    }
+
+    return res.status(200).json({
+      message: "Trading income percents retrieved successfully.",
+      data: tradingIncomePercents,
+    });
+  } catch (error) {
+    console.error("Error retrieving trading income percents:", error);
+    return res.status(500).json({ message: "Server error, please try again later." });
+  }
+}
+
+
+
+
+exports.GetGiftPopup = async (req, res) => {
+  try {
+    const result = await Gift.find();
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No PopUp Found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error during  getting Popup", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error during  getting Popup"
+    });
+  }
+};
+
+
+
+
+
+
+
+
+// Create or Update Gift Popup
+exports.GiftPopup = async (req, res) => {
+  const { title, description, price } = req.body;
+  const { id } = req.params; // Capture the ID if provided for updates
+
+  // Validate inputs
+  if (!title || !description || !price) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    let gift;
+
+    if (id) {
+      // If ID is provided, update the existing gift
+      gift = await Gift.findByIdAndUpdate(
+        id, // The ID of the gift to update
+        { title, description, price }, // The updated values
+        { new: true, runValidators: true } // Return the updated document
+      );
+
+      if (!gift) {
+        return res.status(404).json({ message: "Gift not found" });
+      }
+
+      return res.status(200).json({
+        message: "Gift updated successfully",
+        gift,
+      });
+    } else {
+      // If no ID is provided, create a new gift
+      const newGift = new Gift({
+        title,
+        description,
+        price,
+      });
+
+      const savedGift = await newGift.save();
+
+      return res.status(201).json({
+        message: "Gift created successfully",
+        gift: savedGift,
+      });
+    }
+  } catch (error) {
+    console.error("Error creating or updating gift:", error);
+    return res.status(500).json({ message: "Server error, please try again later." });
+  }
+};
 
 
 

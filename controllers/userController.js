@@ -5,6 +5,10 @@ const BotPurchased = require("../models/botIncome");
 const BotLevelIncome = require("../models/botLevelIncome");
 const TradingIncome = require('../models/tradingIncome');
 const MatchingIncome = require('../models/matchingIncome');
+const TradingIncomePercent = require('../models/tradingIncomePercent');
+
+
+
 // Adjust the path to your User model
 
 exports.signupController = async (req, res) => {
@@ -216,32 +220,38 @@ const generateReferralCode = () => {
 // Function to update the trading wallet daily
 
 
+// Ensure you have this import
+
 exports.updateTradingIncome = async () => {
   console.log("called===>");
-  
+
   try {
+    // Fetch the trading income percentage from the database
+    const tradingIncomePercentDoc = await TradingIncomePercent.findOne(); // Adjust query if needed
+    const incomePercent = tradingIncomePercentDoc ? tradingIncomePercentDoc.percent : 0.05; // Default to 5% if not found
+
     const users = await User.find({
       isActive: true,
       tradingWallet: { $gt: 0 },
     });
 
-    users.forEach(async (user) => {
+    await Promise.all(users.map(async (user) => {
       const { tradingWallet, tradingIncome, earningWallet, referralCode, _id } = user;
-      
+
       // Calculate 210% of the original trading wallet amount
       const maxIncome = tradingWallet * 2.1;
 
       // Check if the user has reached 210% of the initial trading wallet value
       if (tradingIncome < maxIncome) {
-        // Calculate 5% of the current trading wallet
-        const incomeToAdd = tradingWallet * 0.05;
+        // Calculate the dynamic percentage of the current trading wallet
+        const incomeToAdd = tradingWallet * incomePercent;
 
         // Ensure we don't add more than the remaining amount to reach 210%
-        // const finalIncomeToAdd = Math.min(incomeToAdd, maxIncome - tradingIncome);
+        const finalIncomeToAdd = Math.min(incomeToAdd, maxIncome - tradingIncome);
 
         // Update user earnings and trading income
-        user.tradingWallet += incomeToAdd;
-        user.tradingIncome += incomeToAdd;
+        user.tradingWallet += finalIncomeToAdd;
+        user.tradingIncome += finalIncomeToAdd;
 
         // Save the updated user
         await user.save();
@@ -250,8 +260,8 @@ exports.updateTradingIncome = async () => {
         const transaction = new TradingIncome({
           userId: _id,
           referralCode: referralCode,
-          amount: incomeToAdd,
-          tradingWallet: tradingWallet
+          amount: finalIncomeToAdd,
+          tradingWallet: tradingWallet,
         });
 
         await transaction.save();
@@ -260,13 +270,14 @@ exports.updateTradingIncome = async () => {
         user.tradingWallet = 0;
         await user.save();
       }
-    });
+    }));
 
     console.log('Daily trading income update and transaction logging completed.');
   } catch (error) {
     console.error('Error updating trading income or logging transaction:', error);
   }
 };
+
 
 
 

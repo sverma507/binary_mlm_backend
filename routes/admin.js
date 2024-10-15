@@ -20,7 +20,11 @@ const {
   update_withdrawl_request_status,
   getAllTradingTransactions,
   getMatchingIncome,
-  getLevelIncome
+  getLevelIncome,
+  GetGiftPopup,
+  GiftPopup,
+  createTradingIncomePercent,
+  getTradingIncomePercent
 } = require("../controllers/adminController");
 const { adminProtect } = require("../middleware/auth");
 const {
@@ -37,6 +41,12 @@ const router = express.Router();
 
 router.post("/login", Adminlogin);
 router.post("/register", AdminRegister);
+router.get("/get-gift-popup",adminProtect, GetGiftPopup);
+router.put("/gift-popup/:id",adminProtect, GiftPopup);
+router.post("/gift-popup",adminProtect, GiftPopup);
+router.put("/trading-income-percent/:id",adminProtect, createTradingIncomePercent);
+router.post("/trading-income-percent",adminProtect, createTradingIncomePercent);
+router.get("/get-trading-income-percent",adminProtect, getTradingIncomePercent);
 router.get("/all-users", getAllUsers);
 router.get("/update-user", adminProtect, updateUserProfile);
 router.put("/user/:id", adminProtect, updateUserBlockedStatus);
