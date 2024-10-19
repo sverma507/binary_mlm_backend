@@ -544,12 +544,17 @@ const updateRankSalary = async (user, leftActiveCount) => {
 
 exports.activateUser = async (req, res) => {
 
+  console.log('body activation ==>',req.body);
   try {
     const { referralCode } = req.body;
-    console.log('body ==>',req.body);
+    console.log('body  activation ==>',req.body);
 
     // Find the user who is purchasing the package
     const user = await User.findOne({referralCode});
+    if (user.isActive) {
+      return res.status(500).json({ error: 'User Already Active' });
+    }
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -620,12 +625,14 @@ exports.activateUser = async (req, res) => {
         levelMessages.push(`No upline found at level ${level + 1}`);
         break;
       }
+      // console.log("====================line 642==================")
 
       // Calculate the profit for the upline
       const profit = (60 * profitDistribution[level].percentage) / 100;
 
       // Add the profit to the upline's earning wallet
       uplineUser.bullWallet += profit;
+      // console.log("====================line 630==================")
 
       const newBotLevelIncome = new BotLevelIncome({
         user: uplineUser._id,
@@ -636,10 +643,15 @@ exports.activateUser = async (req, res) => {
         amount: profit,
       })
 
-      await newBotLevelIncome.save();
-
+      // console.log("====================line 640==================")
+      // await newBotLevelIncome.save();
       await uplineUser.save();
+      //  await Promise.all([newBotLevelIncome.save(), uplineUser.save()]);
+      // console.log("====================line 644==================")
 
+      // console.log("====================line 64==================")
+
+//  console.log("activation upline reveiced profitt =====>",uplineUser)
 
       console.log("abc ==>",uplineUser.earningWallet);
       
@@ -652,6 +664,7 @@ exports.activateUser = async (req, res) => {
 
       // Set the current user to the upline for the next iteration
       currentUser = uplineUser;
+
     }
 
     const activation = new ActivationTransaction({
