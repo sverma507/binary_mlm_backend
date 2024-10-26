@@ -53,7 +53,11 @@ const userSchema = new mongoose.Schema({
   matchingIncome:{type:Number, default:0},
   blocked: { type: Boolean, default: false },
   rank: { type: String, default: 'None' },  // Rank (Alpha, Beta, etc.)
-  hasReceivedFirstMatchingIncome: { type: Boolean, default: false },  // Status of the user
+  hasReceivedFirstMatchingIncome: { type: Boolean, default: false },
+  matchedPairs: {
+    type: [{ leftUserId: String, rightUserId: String, level: Number }],
+    default: []
+  },  // Status of the user
   isActive: { type: Boolean, default: false },  // Status of the user
   createdAt: { type: Date, default: Date.now }
 });

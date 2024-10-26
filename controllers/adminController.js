@@ -1,20 +1,18 @@
-const User = require('../models/User');
-const Package = require('../models/Package');
-const jwt = require('jsonwebtoken');
-const AdminCredentials = require('../models/Admin/Admin');
+const User = require("../models/User");
+const Package = require("../models/Package");
+const jwt = require("jsonwebtoken");
+const AdminCredentials = require("../models/Admin/Admin");
 const JWT_SECRET = process.env.JWT_SECRET;
-const Product = require('../models/addPackage');
-const WithdrawPaymentRequest = require('../models/withdrawPaymentRequest');
-const ActivationTransaction = require('../models/activationTransaction');
-const AddTransaction = require('../models/addAndDeduct')
+const Product = require("../models/addPackage");
+const WithdrawPaymentRequest = require("../models/withdrawPaymentRequest");
+const ActivationTransaction = require("../models/activationTransaction");
+const AddTransaction = require("../models/addAndDeduct");
 const BotLevelIncome = require("../models/botLevelIncome");
 const BotPurchased = require("../models/botIncome");
-const TradingIncome =require("../models/tradingIncome");
-const MatchingIncome = require('../models/matchingIncome'); 
+const TradingIncome = require("../models/tradingIncome");
+const MatchingIncome = require("../models/matchingIncome");
 const Gift = require("../models/giftPopup");
-const TradingIncomePercent = require('../models/tradingIncomePercent');
-
-
+const TradingIncomePercent = require("../models/tradingIncomePercent");
 
 // Import your TradingIncomePercent model
 
@@ -24,8 +22,10 @@ exports.createTradingIncomePercent = async (req, res) => {
   const { id } = req.params; // Capture the ID if provided for updates
 
   // Validate input
-  if (percent === undefined ) {
-    return res.status(400).json({ message: "Percent is required and must be a number" });
+  if (percent === undefined) {
+    return res
+      .status(400)
+      .json({ message: "Percent is required and must be a number" });
   }
 
   try {
@@ -40,7 +40,9 @@ exports.createTradingIncomePercent = async (req, res) => {
       );
 
       if (!tradingIncome) {
-        return res.status(404).json({ message: "Trading income percent not found" });
+        return res
+          .status(404)
+          .json({ message: "Trading income percent not found" });
       }
 
       return res.status(200).json({
@@ -62,13 +64,11 @@ exports.createTradingIncomePercent = async (req, res) => {
     }
   } catch (error) {
     console.error("Error creating or updating trading income percent:", error);
-    return res.status(500).json({ message: "Server error, please try again later." });
+    return res
+      .status(500)
+      .json({ message: "Server error, please try again later." });
   }
 };
-
-
-
-
 
 exports.getTradingIncomePercent = async (req, res) => {
   try {
@@ -76,7 +76,9 @@ exports.getTradingIncomePercent = async (req, res) => {
     const tradingIncomePercents = await TradingIncomePercent.find();
 
     if (!tradingIncomePercents.length) {
-      return res.status(404).json({ message: "No trading income percent records found." });
+      return res
+        .status(404)
+        .json({ message: "No trading income percent records found." });
     }
 
     return res.status(200).json({
@@ -85,12 +87,11 @@ exports.getTradingIncomePercent = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving trading income percents:", error);
-    return res.status(500).json({ message: "Server error, please try again later." });
+    return res
+      .status(500)
+      .json({ message: "Server error, please try again later." });
   }
-}
-
-
-
+};
 
 exports.GetGiftPopup = async (req, res) => {
   try {
@@ -99,30 +100,22 @@ exports.GetGiftPopup = async (req, res) => {
     if (!result || result.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No PopUp Found"
+        message: "No PopUp Found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: result
+      data: result,
     });
-
   } catch (error) {
     console.error("Error during  getting Popup", error);
     return res.status(500).json({
       success: false,
-      message: "Error during  getting Popup"
+      message: "Error during  getting Popup",
     });
   }
 };
-
-
-
-
-
-
-
 
 // Create or Update Gift Popup
 exports.GiftPopup = async (req, res) => {
@@ -170,146 +163,139 @@ exports.GiftPopup = async (req, res) => {
     }
   } catch (error) {
     console.error("Error creating or updating gift:", error);
-    return res.status(500).json({ message: "Server error, please try again later." });
+    return res
+      .status(500)
+      .json({ message: "Server error, please try again later." });
   }
 };
 
-
-
-
-
 exports.getLevelIncome = async (req, res) => {
-  console.log("helo================================")
+  console.log("helo================================");
   const userId = req.params.userId;
-console.log("bolt level -id =>",userId)
+  console.log("bolt level -id =>", userId);
   try {
     const result = await BotLevelIncome.find();
 
     if (!result || result.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No trading income found for the specified user."
+        message: "No trading income found for the specified user.",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: result
+      data: result,
     });
-
   } catch (error) {
     console.error("Error during retrieving trading income:", error);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while fetching bot level income. Please try again later."
+      message:
+        "An error occurred while fetching bot level income. Please try again later.",
     });
   }
 };
 
-
-
-
 exports.getMatchingIncome = async (req, res) => {
-  console.log("helo================================")
+  console.log("helo================================");
   const userId = req.params.userId;
-console.log("bolt level -id =>",userId)
+  console.log("bolt level -id =>", userId);
   try {
     const result = await MatchingIncome.find();
 
     if (!result || result.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No trading income found for the specified user."
+        message: "No trading income found for the specified user.",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: result
+      data: result,
     });
-
   } catch (error) {
     console.error("Error during retrieving trading income:", error);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while fetching bot level income. Please try again later."
+      message:
+        "An error occurred while fetching bot level income. Please try again later.",
     });
   }
 };
-
-
-
 
 exports.getAllTradingTransactions = async (req, res) => {
   try {
     // Fetch all transactions, populate user details if needed
-    const transactions = await TradingIncome.find()// Modify as per the fields you want to show
+    const transactions = await TradingIncome.find(); // Modify as per the fields you want to show
 
     // Respond with the transactions
     res.status(200).json({
       success: true,
-      data: transactions
+      data: transactions,
     });
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error("Error fetching transactions:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching transactions',
-      error: error.message
+      message: "Error fetching transactions",
+      error: error.message,
     });
   }
 };
 
- exports.update_withdrawl_request_status =async (req, res) => {
+exports.update_withdrawl_request_status = async (req, res) => {
   const { id } = req.params;
   const { paymentStatus } = req.body;
 
   try {
     const request = await WithdrawRequest.findById(id);
     if (!request) {
-      return res.status(404).json({ message: 'Withdrawal request not found.' });
+      return res.status(404).json({ message: "Withdrawal request not found." });
     }
 
     // Update the status
     request.paymentStatus = paymentStatus;
     await request.save();
 
-    return res.status(200).json({ message: 'Withdrawal request status updated successfully.', request });
+    return res.status(200).json({
+      message: "Withdrawal request status updated successfully.",
+      request,
+    });
   } catch (error) {
-    console.error('Error updating withdrawal request status:', error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    console.error("Error updating withdrawal request status:", error);
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
-
-
 // Controller to fetch all withdrawal requests
- exports.getAllWithdrawRequests = async (req, res) => {
+exports.getAllWithdrawRequests = async (req, res) => {
   try {
     const withdrawRequests = await WithdrawPaymentRequest.find()
-      .populate('userId', 'username email') // Adjust according to your User model's fields
+      .populate("userId", "username email") // Adjust according to your User model's fields
       .sort({ createdAt: -1 }); // Sort by createdAt in descending order
 
     return res.status(200).json(withdrawRequests);
   } catch (error) {
-    console.error('Error fetching withdrawal requests:', error);
-    return res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error fetching withdrawal requests:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
-
-
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
-  const { userName, mobileNumber, email, accountNumber, ifscCode, wallet } = req.body;
+  const { userName, mobileNumber, email, accountNumber, ifscCode, wallet } =
+    req.body;
 
   try {
     // Find the user by ID
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Update the user's information
@@ -324,13 +310,17 @@ exports.updateUser = async (req, res) => {
     await user.save();
 
     // Send a success response
-    res.status(200).json({ success: true, message: 'User information updated successfully' });
+    res.status(200).json({
+      success: true,
+      message: "User information updated successfully",
+    });
   } catch (error) {
-    console.error('Error updating user information:', error);
-    res.status(500).json({ success: false, message: 'Failed to update user information' });
+    console.error("Error updating user information:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to update user information" });
   }
 };
-
 
 exports.getAllBlockedUsers = async (req, res) => {
   try {
@@ -342,8 +332,6 @@ exports.getAllBlockedUsers = async (req, res) => {
   }
 };
 
-
-
 exports.updateUserBlockedStatus = async (req, res) => {
   const { id } = req.params;
   const { blocked } = req.body;
@@ -351,58 +339,64 @@ exports.updateUserBlockedStatus = async (req, res) => {
   try {
     const user = await User.findById({ _id: id });
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     user.blocked = blocked;
     await user.save();
 
-    res.status(200).json({ success: true, message: `User ${blocked ? 'blocked' : 'unblocked'} successfully` });
+    res.status(200).json({
+      success: true,
+      message: `User ${blocked ? "blocked" : "unblocked"} successfully`,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-
 exports.addOrDeductWallet = async (req, res) => {
   const { userId, amount, transactionType, walletType, description } = req.body;
-  console.log('body ==>', req.body);
+  console.log("body ==>", req.body);
 
   try {
     const user = await User.findOne({ referralCode: userId });
 
     if (!user) {
-      console.log('No user found');
-      return res.status(404).json({ error: 'User not found' });
+      console.log("No user found");
+      return res.status(404).json({ error: "User not found" });
     }
 
-    console.log('user ==>', user);
+    console.log("user ==>", user);
 
     // Handle adding or deducting amounts based on wallet type
-    if (transactionType === 'add') {
-      if (walletType === 'r-wallet') {
+    if (transactionType === "add") {
+      if (walletType === "r-wallet") {
         user.rechargeWallet += Number(amount);
-      } else if (walletType === 'e-wallet') {
+      } else if (walletType === "e-wallet") {
         user.earningWallet += Number(amount);
         user.totalEarning += Number(amount);
-      } else if (walletType === 'trading-wallet') {
+      } else if (walletType === "trading-wallet") {
         user.tradingWallet += Number(amount); // Add amount to tradingWallet
       }
-    } else if (transactionType === 'deduct') {
-      if (walletType === 'r-wallet') {
+    } else if (transactionType === "deduct") {
+      if (walletType === "r-wallet") {
         user.rechargeWallet -= Number(amount);
-      } else if (walletType === 'e-wallet') {
+      } else if (walletType === "e-wallet") {
         user.earningWallet -= Number(amount);
-      } else if (walletType === 'trading-wallet') {
+      } else if (walletType === "trading-wallet") {
         user.tradingWallet -= Number(amount); // Deduct amount from tradingWallet
       }
     } else {
-      return res.status(400).json({ error: 'Invalid transaction type' });
+      return res.status(400).json({ error: "Invalid transaction type" });
     }
 
     console.log("Updated user wallet ==>", user);
-    console.log(`user.id => ${user._id}, amount => ${amount}, type => ${transactionType}`);
+    console.log(
+      `user.id => ${user._id}, amount => ${amount}, type => ${transactionType}`
+    );
 
     // Save the updated user wallet
     await user.save();
@@ -416,17 +410,16 @@ exports.addOrDeductWallet = async (req, res) => {
       description,
     });
 
-
     await transaction.save();
 
     const tradetransaction = new TradingIncome({
       userId: _id,
       referralCode: referralCode,
       amount: incomeToAdd,
-      tradingWallet: tradingWallet
+      tradingWallet: tradingWallet,
     });
     await tradetransaction.save();
-    
+
     res.status(200).json(user);
   } catch (err) {
     console.error("Error occurred:", err.message);
@@ -434,10 +427,10 @@ exports.addOrDeductWallet = async (req, res) => {
   }
 };
 
-
-
 const countActiveUsersInSubtree = async (userId, count = 0) => {
-  const user = await User.findById(userId).populate('leftChild').populate('rightChild');
+  const user = await User.findById(userId)
+    .populate("leftChild")
+    .populate("rightChild");
   if (!user) return count;
 
   // Increment count if the user is active
@@ -455,78 +448,314 @@ const countActiveUsersInSubtree = async (userId, count = 0) => {
   return count;
 };
 
-// Function to calculate matching income
-// Import the MatchingIncome model
- // Assuming you have the User model imported
 
-const calculateMatchingIncome = async (parentId) => {
-  try {
-    const user = await User.findById(parentId);
-    if (!user) {
-      throw new Error('User not found');
+
+
+async function calculateRankSalary(user) {
+  const rankConfig = [
+    { threshold: 5 },
+    { threshold: 15 },
+    { threshold: 40 },
+    { threshold: 90 },
+    { threshold: 190 },
+    { threshold: 440 },
+    { threshold: 940 },
+    { threshold: 1940 },
+    { threshold: 4440 },
+    { threshold: 9440 },
+    { threshold: 16940 },
+    { threshold: 26940 },
+    { threshold: 41940 },
+    { threshold: 66940 },
+    { threshold: 116940 },
+    { threshold: 216940 },
+  ];
+  const matchedPairsCount = user.matchedPairs.length;
+
+  const userRank = rankConfig.find(rank => matchedPairsCount >= rank.threshold);
+  if (userRank) {
+    // const salaryToAdd = userRank.salary;
+    // user.salaryIncome += salaryToAdd;
+    // user.rank = userRank.rank;
+    await user.save();
+    console.log(`User ${user.email} received rank salary: ${salaryToAdd}`);
+  } else {
+    console.log(`User ${user.email} does not meet rank threshold for salary.`);
+  }
+}
+
+
+
+
+async function calculateMatchingIncome(user) {
+  console.log("Calculating matching income for:", user.email);
+
+  // Ensure the user is active to be eligible for matching income
+  if (!user || !user.isActive) {
+    return 0;
+  }
+
+  // Initialize matchedPairs if it's undefined
+  if (!user.matchedPairs) {
+    user.matchedPairs = [];
+  }
+
+  let totalIncome = 0;
+
+  // Step 1: Check 2:1 or 1:2 initial matching condition if not yet received
+  if (!user.hasReceivedFirstMatchingIncome) {
+    const leftIncome = await checkMatching(user.leftChild);
+    const rightIncome = await checkMatching(user.rightChild);
+
+    // Check for 2:1 or 1:2 matching condition
+    if (leftIncome.activeCount >= 2 && rightIncome.activeCount >= 1) {
+      totalIncome += calculateIncome(1);
+      user.hasReceivedFirstMatchingIncome = true;
+    } else if (rightIncome.activeCount >= 2 && leftIncome.activeCount >= 1) {
+      totalIncome += calculateIncome(1);
+      user.hasReceivedFirstMatchingIncome = true;
     }
+  }
 
-    if (user.matchingIncome > 300) {
-      console.log("Matching Income exceeds $300");
-      return;
-    }
+  // Step 2: Check 1:1 matching if the initial condition was met
+  if (user.hasReceivedFirstMatchingIncome) {
+    totalIncome += await calculate1to1MatchingIncome(
+      user.leftChild,
+      user.rightChild,
+      user
+    );
+  }
 
-    // Count active users on both the left and right sides of the tree
-    const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
-    const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
+  console.log("Total income =>", totalIncome);
+  return totalIncome;
+}
 
-    console.log("Left active count:", leftActiveCount);
-    console.log("Right active count:", rightActiveCount);
+// Function to calculate 1:1 matching income for active users at each level
 
-    // Check for matching pairs (2:1 or 1:2)
-    let isMatchingPair = false;
-    if (!user.hasReceivedFirstMatchingIncome) {
-      isMatchingPair = (leftActiveCount >= 2 && rightActiveCount >= 1) ||
-        (leftActiveCount >= 1 && rightActiveCount >= 2);
+// Recursive function to count active users in the subtree
+async function checkMatching(userId) {
+  if (!userId) return { activeCount: 0 };
+
+  const user = await User.findById(userId);
+  if (!user) return { activeCount: 0 };
+
+  let activeCount = user.isActive ? 1 : 0;
+  const leftResult = await checkMatching(user.leftChild);
+  const rightResult = await checkMatching(user.rightChild);
+
+  activeCount += leftResult.activeCount + rightResult.activeCount;
+
+  return { activeCount };
+}
+
+// Function to collect active users at each level
+async function collectActiveUsersAtLevel(userId, level, currentLevel = 1) {
+  if (!userId || currentLevel > level) return [];
+
+  const user = await User.findById(userId);
+  if (!user) return [];
+
+  if (currentLevel === level && user.isActive) {
+    return [user];
+  }
+
+  return [
+    ...(await collectActiveUsersAtLevel(
+      user.leftChild,
+      level,
+      currentLevel + 1
+    )),
+    ...(await collectActiveUsersAtLevel(
+      user.rightChild,
+      level,
+      currentLevel + 1
+    )),
+  ];
+}
+
+// Function to calculate 1:1 matching income for active users at each level
+async function calculate1to1MatchingIncome(leftUserId, rightUserId, user) {
+  let income = 0;
+  let level = 1;
+  let hasMoreLevels = true;
+
+  // Continue to check each level until there are no more active users at that level
+  while (hasMoreLevels) {
+    const leftActiveUsers = await collectActiveUsersAtLevel(leftUserId, level);
+    const rightActiveUsers = await collectActiveUsersAtLevel(
+      rightUserId,
+      level
+    );
+
+    // Match each active user on the left with an active user on the right
+    let matchCount = 0;
+    for (
+      let i = 0;
+      i < Math.min(leftActiveUsers.length, rightActiveUsers.length);
+      i++
+    ) {
+      const leftUser = leftActiveUsers[i];
+      const rightUser = rightActiveUsers[i];
+
+      // Check if this pair has already been matched at this level
+      const pairExists = user.matchedPairs.some(
+        (pair) =>
+          pair.leftUserId === leftUser._id.toString() &&
+          pair.rightUserId === rightUser._id.toString() &&
+          pair.level === level
+      );
+
+      if (!pairExists) {
+        // Add the new match pair to matchedPairs
+        user.matchedPairs.push({
+          leftUserId: leftUser._id.toString(),
+          rightUserId: rightUser._id.toString(),
+          level,
+        });
       
-      if (isMatchingPair) {
-        user.hasReceivedFirstMatchingIncome = true;
-      }
-    } else {
-      isMatchingPair = (leftActiveCount === rightActiveCount);
-      if (isMatchingPair) {
-        // Update rank salary activation based on active counts (as per your logic)
-        updateRankSalary(user, leftActiveCount);
+        
+        matchCount++;
       }
     }
 
-    if (isMatchingPair) {
-      // Update the user's matching income
-      const matchingIncomeAmount = 5;  // Example: $5 for each matching pair
-      user.matchingIncome += matchingIncomeAmount;
-      user.hasReceivedFirstMatchingIncome = false;
-      await user.save();
+    // Calculate income for new matches only
+    income += matchCount * calculateIncome(1);
 
-      // Store the matching income in the MatchingIncome collection
+    // Stop if no active users are found at the current level on both sides
+    if (leftActiveUsers.length === 0 && rightActiveUsers.length === 0) {
+      hasMoreLevels = false;
+    }
+
+    level++;
+  }
+
+  // Save updated matched pairs to the user
+  await user.save();
+  // await calculateRankSalary(user);
+  console.log("Income return =>", income);
+  return income;
+}
+
+
+
+
+// Function to calculate income based on match type
+function calculateIncome(matchType) {
+  const incomePerMatch = 5; // $5 per match
+  return matchType * incomePerMatch;
+}
+
+
+
+
+
+async function distributeMatchingIncome() {
+  // Fetch all users
+  const allUsers = await User.find();
+
+  // Iterate over each user and calculate matching income
+  for (const tempUser of allUsers) {
+    if (tempUser.isActive) {
+      console.log("Calculating matching income for:", tempUser.email);
+
+      // Await the resolved income value from calculateMatchingIncome
+      const income = await calculateMatchingIncome(tempUser);
+      console.log("Resolved Income for", tempUser.email, ":", income);
+
+      // Update the user's wallets and matching income
+      tempUser.earningWallet += income;
+      tempUser.matchingWallet += income;
+      tempUser.matchingIncome += income;
+
+      // Save the updated user data to the database
+      await tempUser.save();
       const matchingIncomeRecord = new MatchingIncome({
-        user: user._id,
-        referralCode: user.referralCode,
-        amount: matchingIncomeAmount,
+        user: tempUser._id,
+        referralCode: tempUser.referralCode,
+        amount: income,
       });
 
-      await matchingIncomeRecord.save(); // Save the record to the database
-
-      console.log(`Matching income updated for user: ${user.email}, new income: $${user.matchingIncome}`);
-    } else {
-      console.log('No matching pair found.');
+      await matchingIncomeRecord.save();
+      console.log("Updated user in database:", tempUser._id);
     }
-
-    return user;
-  } catch (error) {
-    console.error(error);
-    throw new Error('Error in calculating matching income');
   }
-};
+
+  console.log("Income distribution completed for all active users.");
+}
+
+// const calculateMatchingIncome = async (parentId) => {
+//   try {
+//     const user = await User.findById(parentId);
+//     if (!user) {
+//       throw new Error('User not found');
+//     }
+
+//     if (user.matchingIncome > 300) {
+//       console.log("Matching Income exceeds $300");
+//       return;
+//     }
+
+//     // Count active users on both the left and right sides of the tree
+//     const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
+//     const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
+
+//     console.log("Left active count:", leftActiveCount);
+//     console.log("Right active count:", rightActiveCount);
+
+//     // Check for matching pairs (2:1 or 1:2)
+//     let isMatchingPair = false;
+//     if (!user.hasReceivedFirstMatchingIncome) {
+//       isMatchingPair = (leftActiveCount >= 2 && rightActiveCount >= 1) ||
+//         (leftActiveCount >= 1 && rightActiveCount >= 2);
+
+//       if (isMatchingPair) {
+//         user.hasReceivedFirstMatchingIncome = true;
+//       }
+//     } else {
+//       isMatchingPair = (leftActiveCount === rightActiveCount);
+//       if (isMatchingPair) {
+//         // Update rank salary activation based on active counts (as per your logic)
+//         updateRankSalary(user, leftActiveCount);
+//       }
+//     }
+
+//     if (isMatchingPair) {
+//       // Update the user's matching income
+//       const matchingIncomeAmount = 5;  // Example: $5 for each matching pair
+//       user.matchingIncome += matchingIncomeAmount;
+//       user.matchingWallet +=matchingIncomeAmount;
+//       user.earningWallet +=matchingIncomeAmount;
+//       user.hasReceivedFirstMatchingIncome = false;
+//       await user.save();
+
+//       // Store the matching income in the MatchingIncome collection
+//       const matchingIncomeRecord = new MatchingIncome({
+//         user: user._id,
+//         referralCode: user.referralCode,
+//         amount: matchingIncomeAmount,
+//       });
+
+//       await matchingIncomeRecord.save(); // Save the record to the database
+
+//       console.log(`Matching income updated for user: ${user.email}, new income: $${user.matchingIncome}`);
+//     } else {
+//       console.log('No matching pair found.');
+//     }
+
+//     return user;
+//   } catch (error) {
+//     console.error(error);
+//     throw new Error('Error in calculating matching income');
+//   }
+// };
 
 // Helper function to update rank salary based on active counts
 const updateRankSalary = async (user, leftActiveCount) => {
-  const rankThresholds = [5, 15, 40, 90, 190, 440, 940, 1940, 4440, 9440, 16940, 26940, 41940, 66940, 116940, 216940];
-  
+  const rankThresholds = [
+    5, 15, 40, 90, 190, 440, 940, 1940, 4440, 9440, 16940, 26940, 41940, 66940,
+    116940, 216940,
+  ];
+
   for (let i = 0; i < rankThresholds.length; i++) {
     if (leftActiveCount === rankThresholds[i]) {
       user.rankSalaryActivation[i] = true;
@@ -540,55 +769,38 @@ const updateRankSalary = async (user, leftActiveCount) => {
   }
 };
 
-
-
 exports.activateUser = async (req, res) => {
-
-  console.log('body activation ==>',req.body);
+  console.log("body activation ==>", req.body);
   try {
     const { referralCode } = req.body;
-    console.log('body  activation ==>',req.body);
+    console.log("body  activation ==>", req.body);
 
     // Find the user who is purchasing the package
-    const user = await User.findOne({referralCode});
+    const user = await User.findOne({ referralCode });
     if (user.isActive) {
       return res.status(500).json({ error: 'User Already Active' });
     }
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
-    // console.log('user ==>',user);
-    
     user.isActive = true;
     await user.save();
+    const activation = new ActivationTransaction({
+      user: user.referralCode,
+      referralCode: user.referralCode,
+      // mobileNumber: user.phone,
+      activateBy: "admin",
+    });
+    const newBullPurchsed = new BotPurchased({
+      user: user._id,
+      amount: 60,
+      purchasedBy: "Admin",
+    });
+    await newBullPurchsed.save();
+    await activation.save();
 
-    const all_users = await User.find()
-    let all_id=[];
-
-    for(let i=0;i<all_users.length;i++){
-      all_id.push(all_users[i]._id)
-    } 
-    console.log("alll_id--->",all_id);
-    
-    for(let i=0;i<all_id.length;i++){
-      await calculateMatchingIncome(all_id[i])
-      console.log("useraaaa===>",all_id[i])
-    }
-    // MatchingIncome(userId);
-    // const all_users = await User.find()
-    // let all_id=[];
-
-    // for(let i=0;i<all_users.length;i++){
-    //   all_id.push(all_users[i]._id)
-    // } 
-    // console.log("alll_id--->",all_id);
-    
-    // for(let i=0;i<all_id.length;i++){
-    //   await calculateMatchingIncome(all_id[i])
-    //   console.log("useraaaa===>",all_id[i])
-    // }
-    await user.save();
+    distributeMatchingIncome();
 
     console.log(
       `Bull purchased for user: ${user.referralCode}, $60 deducted from recharge wallet`
@@ -608,16 +820,9 @@ exports.activateUser = async (req, res) => {
     let levelMessages = [];
 
     for (let level = 0; level < profitDistribution.length; level++) {
-      console.log("level===========================", currentUser);
-      
-      // Fetch the referring user (upline) based on the referralCode
       const uplineUser = await User.findOne({
         referralCode: currentUser.referredBy,
       });
-
-      console.log('uplineUser =======>',uplineUser);
-      
-
       if (!uplineUser) {
         console.log(
           `No upline user found for referral code: ${currentUser.referredBy}`
@@ -625,69 +830,34 @@ exports.activateUser = async (req, res) => {
         levelMessages.push(`No upline found at level ${level + 1}`);
         break;
       }
-      // console.log("====================line 642==================")
 
-      // Calculate the profit for the upline
       const profit = (60 * profitDistribution[level].percentage) / 100;
 
-      // Add the profit to the upline's earning wallet
-      uplineUser.bullWallet += profit;
-      // console.log("====================line 630==================")
+      if (uplineUser.isActive) {
+        uplineUser.bullWallet += profit;
 
-      const newBotLevelIncome = new BotLevelIncome({
-        user: uplineUser._id,
-        // fromUser: user._id,
-        fromUser: user.referralCode,
-        level: level,
-        percentage: profitDistribution[level].percentage,
-        amount: profit,
-      })
+        const newBotLevelIncome = new BotLevelIncome({
+          user: uplineUser._id,
+          fromUser: user.referralCode,
+          level: level + 1,
+          percentage: profitDistribution[level].percentage,
+          amount: profit,
+        });
 
-      // console.log("====================line 640==================")
-      // await newBotLevelIncome.save();
+
+        await newBotLevelIncome.save(); // Ensure this line is active to save each transaction
+
+        // await newBotLevelIncome.save();
+      }
+
       await uplineUser.save();
-      //  await Promise.all([newBotLevelIncome.save(), uplineUser.save()]);
-      // console.log("====================line 644==================")
-
-      // console.log("====================line 64==================")
-
-//  console.log("activation upline reveiced profitt =====>",uplineUser)
-
-      console.log("abc ==>",uplineUser.earningWallet);
-      
-
       const uplineMessage = `${profitDistribution[level].description} (User ID: ${uplineUser._id}) received ${profit} as profit`;
-      
-
       console.log(uplineMessage);
       levelMessages.push(uplineMessage);
 
       // Set the current user to the upline for the next iteration
       currentUser = uplineUser;
-
     }
-
-    const activation = new ActivationTransaction({
-      user: user.referralCode,
-      referralCode: user.referralCode,
-      // mobileNumber: user.phone,
-      activateBy: 'admin',
-    });
-
-
-    console.log('hellooooooooooooooooooo');
-    
-
-    const newBullPurchsed = new BotPurchased({
-      user: user._id,
-      amount: 60,
-      purchasedBy: "Admin"
-    })
-
-    await newBullPurchsed.save();
-
-    
-    await activation.save();
 
     // Send response with success message and details of profit distribution
     res.status(200).json({
@@ -695,54 +865,52 @@ exports.activateUser = async (req, res) => {
       profitDistributionDetails: levelMessages,
     });
     // console.log('income ==>',profitTransaction);
-    
+
     await activation.save();
     // res.status(200).json({ message: 'User activated and package assigned', user });
     // console.log({ message: 'User activated and package assigned', user });
-    
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.log(error)
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
-
 exports.updateWithdrawlPaymentStatus = async (req, res) => {
   // console.log("update withdraw status called=>",req.params);
-  
+
   const { transactionId } = req.params; // Get the transaction ID from the request parameters
   const { paymentStatus } = req.body; // Get the new payment status from the request body
 
   try {
     // Validate the paymentStatus input
-    const validStatuses = ['Processing', 'Approved', 'Canceled'];
+    const validStatuses = ["Processing", "Approved", "Canceled"];
     if (!validStatuses.includes(paymentStatus)) {
-      return res.status(400).json({ message: 'Invalid payment status' });
+      return res.status(400).json({ message: "Invalid payment status" });
     }
 
     // Find the transaction by its ID and update its payment status
     const updatedTransaction = await WithdrawPaymentRequest.findByIdAndUpdate(
-      {_id:transactionId},
+      { _id: transactionId },
       { paymentStatus },
       { new: true } // Return the updated document
     );
 
     if (!updatedTransaction) {
-      return res.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: "Transaction not found" });
     }
 
     // Respond with the updated transaction
     res.status(200).json({
-      message: 'Payment status updated successfully',
-      data: updatedTransaction
+      message: "Payment status updated successfully",
+      data: updatedTransaction,
     });
   } catch (err) {
-    console.error('Error updating payment status:', err);
-    res.status(500).json({ message: 'Server error while updating payment status' });
+    console.error("Error updating payment status:", err);
+    res
+      .status(500)
+      .json({ message: "Server error while updating payment status" });
   }
 };
-
-
 
 exports.AdminRegister = async (req, res) => {
   const { mobileNumber, password } = req.body;
@@ -750,18 +918,22 @@ exports.AdminRegister = async (req, res) => {
   try {
     let admin = await AdminCredentials.findOne({ mobileNumber });
     if (admin) {
-      return res.status(400).json({ success: false, message: 'Mobile number already registered' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Mobile number already registered" });
     }
-    
+
     admin = new AdminCredentials({
       mobileNumber,
-      password // Store the original password directly
+      password, // Store the original password directly
     });
     await admin.save();
-    res.status(201).json({ success: true, message: 'Admin registered successfully' });
+    res
+      .status(201)
+      .json({ success: true, message: "Admin registered successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -784,14 +956,13 @@ exports.getAllActiveUsers = async (req, res) => {
   }
 };
 
-
 exports.getDownlineUsers = async (req, res) => {
   const { userId } = req.params;
   try {
     // Find the main user
     const user = await User.findOne({ referralCode: userId });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Recursively find all downline users with their levels
@@ -800,7 +971,10 @@ exports.getDownlineUsers = async (req, res) => {
       let result = [];
 
       for (const downline of downlines) {
-        const downlineUsers = await findDownlines(downline.referralCode, level + 1);
+        const downlineUsers = await findDownlines(
+          downline.referralCode,
+          level + 1
+        );
         result.push({
           ...downline.toObject(),
           level,
@@ -823,15 +997,13 @@ exports.getDownlineUsers = async (req, res) => {
 exports.getActivationList = async (req, res) => {
   try {
     const result = await ActivationTransaction.find();
-    console.log("result",result);
-    
+    console.log("result", result);
 
-    res.status(200).send(result)  
+    res.status(200).send(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
-
 
 exports.getAllUnPaidUsers = async (req, res) => {
   try {
@@ -845,33 +1017,41 @@ exports.getAllUnPaidUsers = async (req, res) => {
 
 exports.Adminlogin = async (req, res) => {
   const { mobileNumber, password } = req.body;
-  console.log("admin==>",req.body);
+  console.log("admin==>", req.body);
   try {
     const admin = await AdminCredentials.findOne({ mobileNumber });
     console.log("admin=>", admin);
 
     if (!admin) {
-      return res.status(400).json({ success: false, message: 'Invalid mobile number or password' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid mobile number or password" });
     }
 
     if (password !== admin.password) {
-      return res.status(400).json({ success: false, message: 'Invalid mobile number or password' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid mobile number or password" });
     }
 
-    const token = jwt.sign({ id: admin._id, mobileNumber: admin.mobileNumber }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: admin._id, mobileNumber: admin.mobileNumber },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: admin._id,
-        mobileNumber: admin.mobileNumber
-      }
+        mobileNumber: admin.mobileNumber,
+      },
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -906,13 +1086,12 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-
-exports.getAddDeductList = async(req,res) => {
+exports.getAddDeductList = async (req, res) => {
   try {
-    const  addDeductList = await AddTransaction.find();
-    console.log("result",addDeductList);
-    res.status(200).send(addDeductList) 
+    const addDeductList = await AddTransaction.find();
+    console.log("result", addDeductList);
+    res.status(200).send(addDeductList);
   } catch (error) {
     res.status(400).json({ error: err.message });
   }
-}
+};
