@@ -13,7 +13,8 @@ const TradingIncome = require("../models/tradingIncome");
 const MatchingIncome = require("../models/matchingIncome");
 const Gift = require("../models/giftPopup");
 const TradingIncomePercent = require("../models/tradingIncomePercent");
-
+const {CalculateRankSalary} = require("./ranksalary")
+const {DistributeRankSalary} = require("./ranksalary")
 // Import your TradingIncomePercent model
 
 // Create or Update Trading Income Percent
@@ -631,7 +632,8 @@ async function calculate1to1MatchingIncome(leftUserId, rightUserId, user) {
 
   // Save updated matched pairs to the user
   await user.save();
-  // await calculateRankSalary(user);
+  // await CalculateRankSalary();
+  // await DistributeRankSalary();
   console.log("Income return =>", income);
   return income;
 }
@@ -683,91 +685,7 @@ async function distributeMatchingIncome() {
   console.log("Income distribution completed for all active users.");
 }
 
-// const calculateMatchingIncome = async (parentId) => {
-//   try {
-//     const user = await User.findById(parentId);
-//     if (!user) {
-//       throw new Error('User not found');
-//     }
 
-//     if (user.matchingIncome > 300) {
-//       console.log("Matching Income exceeds $300");
-//       return;
-//     }
-
-//     // Count active users on both the left and right sides of the tree
-//     const leftActiveCount = await countActiveUsersInSubtree(user.leftChild);
-//     const rightActiveCount = await countActiveUsersInSubtree(user.rightChild);
-
-//     console.log("Left active count:", leftActiveCount);
-//     console.log("Right active count:", rightActiveCount);
-
-//     // Check for matching pairs (2:1 or 1:2)
-//     let isMatchingPair = false;
-//     if (!user.hasReceivedFirstMatchingIncome) {
-//       isMatchingPair = (leftActiveCount >= 2 && rightActiveCount >= 1) ||
-//         (leftActiveCount >= 1 && rightActiveCount >= 2);
-
-//       if (isMatchingPair) {
-//         user.hasReceivedFirstMatchingIncome = true;
-//       }
-//     } else {
-//       isMatchingPair = (leftActiveCount === rightActiveCount);
-//       if (isMatchingPair) {
-//         // Update rank salary activation based on active counts (as per your logic)
-//         updateRankSalary(user, leftActiveCount);
-//       }
-//     }
-
-//     if (isMatchingPair) {
-//       // Update the user's matching income
-//       const matchingIncomeAmount = 5;  // Example: $5 for each matching pair
-//       user.matchingIncome += matchingIncomeAmount;
-//       user.matchingWallet +=matchingIncomeAmount;
-//       user.earningWallet +=matchingIncomeAmount;
-//       user.hasReceivedFirstMatchingIncome = false;
-//       await user.save();
-
-//       // Store the matching income in the MatchingIncome collection
-//       const matchingIncomeRecord = new MatchingIncome({
-//         user: user._id,
-//         referralCode: user.referralCode,
-//         amount: matchingIncomeAmount,
-//       });
-
-//       await matchingIncomeRecord.save(); // Save the record to the database
-
-//       console.log(`Matching income updated for user: ${user.email}, new income: $${user.matchingIncome}`);
-//     } else {
-//       console.log('No matching pair found.');
-//     }
-
-//     return user;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error('Error in calculating matching income');
-//   }
-// };
-
-// Helper function to update rank salary based on active counts
-const updateRankSalary = async (user, leftActiveCount) => {
-  const rankThresholds = [
-    5, 15, 40, 90, 190, 440, 940, 1940, 4440, 9440, 16940, 26940, 41940, 66940,
-    116940, 216940,
-  ];
-
-  for (let i = 0; i < rankThresholds.length; i++) {
-    if (leftActiveCount === rankThresholds[i]) {
-      user.rankSalaryActivation[i] = true;
-      user.rankSalaryStartDate[i] = Date.now();
-      if (i > 0) {
-        user.rankSalaryActivation[i - 1] = false; // Deactivate the previous rank
-      }
-      await user.save();
-      break;
-    }
-  }
-};
 
 exports.activateUser = async (req, res) => {
   console.log("body activation ==>", req.body);

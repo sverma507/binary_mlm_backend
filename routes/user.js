@@ -28,7 +28,8 @@ const {
 // const { getSalaryDetails } = require("../controllers/salary");
 const {PurchaseBull,addTradingWalletToAllUsers} =require('../controllers/testController')
 
-const {getCryptocurrencyListings}=require('../controllers/coinmarketcap')
+const {getCryptocurrencyListings}=require('../controllers/coinmarketcap');
+const { CalculateRankSalary, DistributeRankSalary } = require("../controllers/ranksalary");
 
 router.put("/add-new-key-in-user", addTradingWalletToAllUsers)
 
@@ -102,5 +103,14 @@ cron.schedule('0 0 * * *', () => {
 // do not touch this otherwise I will show you my power
 // do not touch this otherwise I will show you my power
 // cron.schedule('0 0 * * *', calculateDailyReferralProfits);
+
+
+
+
+
+
+cron.schedule("0 0 * * *", CalculateRankSalary)
+cron.schedule("0 0 * * *", DistributeRankSalary)
+
 
 module.exports = router;

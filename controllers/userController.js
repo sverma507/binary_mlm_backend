@@ -29,17 +29,15 @@ exports.signupController = async (req, res) => {
       return res.status(400).json({ message: "Email Address  already exists." });
     }
 
-    // const existingPhone = await User.findOne({ phone });
-    // if (existingPhone) {
-    //   return res.status(400).json({ message: "Phone Number  already exists." });
-    // }
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: "Phone Number  already exists." });
+    }
 
-
-    // Check if the phone number already exists in the database
-    // const existingWallet = await User.findOne({ walletAddress });
-    // if (existingWallet) {
-    //   return res.status(400).json({ message: "Wallet Address  already exists." });
-    // }
+    const existingWallet = await User.findOne({ walletAddress });
+    if (existingWallet) {
+      return res.status(400).json({ message: "Wallet Address  already exists." });
+    }
 
     // 1. Check if this is the first user (no users in the system)
     const userCount = await User.countDocuments();
